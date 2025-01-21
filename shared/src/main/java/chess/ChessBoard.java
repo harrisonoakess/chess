@@ -1,15 +1,33 @@
 package chess;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * A chessboard that can hold and rearrange chess pieces.
  * <p>
  * Note: You can add to this class, but you may not alter
  * signature of the existing methods.
+ *
  */
 public class ChessBoard {
     private final ChessPiece[][] board = new ChessPiece[8][8];
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessBoard that = (ChessBoard) o;
+        return Objects.deepEquals(board, that.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
+    }
+
     public ChessBoard() {
-        
     }
 
     /**
@@ -60,7 +78,6 @@ public class ChessBoard {
         }
 
 
-
         board[7][0] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         board[7][1] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.KNIGHT);
         board[7][2] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.BISHOP);
@@ -71,9 +88,30 @@ public class ChessBoard {
         board[7][7] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.ROOK);
         // setup BLACK pawns
         for (int col = 0; col < board.length; col++) {
-            board[7][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
+            board[6][col] = new ChessPiece(ChessGame.TeamColor.BLACK, ChessPiece.PieceType.PAWN);
         }
 
 
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[row].length; col++) {
+                ChessPiece piece = board[row][col];
+                if (piece == null) {
+                    sb.append(". "); // Empty square
+                } else {
+                    // Append piece type and team color (e.g., WP for White Pawn)
+                    sb.append(piece.getTeamColor().toString().charAt(0))
+                            .append(piece.getPieceType().toString().charAt(0))
+                            .append(" ");
+                }
+            }
+            sb.append("\n"); // Newline after each row
+        }
+        return sb.toString();
+    }
 }
+
