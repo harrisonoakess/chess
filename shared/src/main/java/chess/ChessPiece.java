@@ -67,6 +67,27 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        return new ArrayList<>();
+        PieceMovesCalculator calculator = null;
+        if (piece_type == PieceType.KING){
+            calculator = new KingMovesCalculator();
+        }
+        else if (piece_type == PieceType.QUEEN){
+            calculator = new QueenMovesCalculator();
+        }
+        else if (piece_type == PieceType.BISHOP){
+            calculator = new BishopMovesCalculator();
+        }
+        else if (piece_type == PieceType.KNIGHT){
+            calculator = new KnightMovesCalculator();
+        }
+        else if (piece_type == PieceType.ROOK){
+            calculator = new RookMovesCalculator();
+        }
+        else if (piece_type == PieceType.PAWN){
+            calculator = new PawnMovesCalculator();
+        }
+
+
+        return calculator.pieceMoves(board, myPosition);
     }
 }

@@ -1,4 +1,35 @@
 package chess;
 
-public class KingMovesCalculator {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+
+public class KingMovesCalculator implements PieceMovesCalculator {
+
+    @Override
+    public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> validMoves = new ArrayList<>();
+
+        // Gets the position of the current piece
+        int position_row = myPosition.getRow();
+        int position_col = myPosition.getColumn();
+
+        // Rules for the King
+        int[] optionalRowMoves = {1,1,1,0,0,-1,-1,-1};
+        int[] optionalColMoves = {1,0,-1,-1,1,1,0,-1};
+
+        // takes into account where the starting position of the piece is
+        for (int i = 0; i < optionalRowMoves.length; i++) {
+            int positionalRowMoves = (position_row + optionalRowMoves[i])+1;
+            int positionalColMoves = (position_col + optionalColMoves[i])+1;
+
+            // creates a new position bases off optional moves
+            ChessPosition pieceNewPosition =  new ChessPosition(positionalRowMoves, positionalColMoves);
+
+            // Look on "ChessMove.java" line 30 for this. Adds the move to the array
+            validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
+
+        }
+        return validMoves;
+    }
 }
