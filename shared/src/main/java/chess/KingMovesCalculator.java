@@ -36,8 +36,6 @@ public class KingMovesCalculator implements PieceMovesCalculator {
              }
 
 
-
-
         }
         return validMoves;
     }
