@@ -11,8 +11,9 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessPiece {
-    private final ChessGame.TeamColor piece_color;
-    private final ChessPiece.PieceType piece_type;
+
+    private final ChessGame.TeamColor pieceColor;
+    private final PieceType type;
 
     @Override
     public boolean equals(Object o) {
@@ -20,17 +21,17 @@ public class ChessPiece {
             return false;
         }
         ChessPiece that = (ChessPiece) o;
-        return piece_color == that.piece_color && piece_type == that.piece_type;
+        return pieceColor == that.pieceColor && type == that.type;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(piece_color, piece_type);
+        return Objects.hash(pieceColor, type);
     }
 
     public ChessPiece(ChessGame.TeamColor pieceColor, ChessPiece.PieceType type) {
-        this.piece_color = pieceColor;
-        this.piece_type = type;
+        this.pieceColor = pieceColor;
+        this.type = type;
     }
 
     /**
@@ -49,14 +50,14 @@ public class ChessPiece {
      * @return Which team this chess piece belongs to
      */
     public ChessGame.TeamColor getTeamColor() {
-        return piece_color;
+        return pieceColor;
     }
 
     /**
      * @return which type of chess piece this piece is
      */
     public PieceType getPieceType() {
-        return piece_type;
+        return type;
     }
 
     /**
@@ -68,26 +69,24 @@ public class ChessPiece {
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceMovesCalculator calculator = null;
-        if (piece_type == PieceType.KING){
-            calculator = new KingMovesCalculator();
-        }
-        else if (piece_type == PieceType.QUEEN){
-            calculator = new QueenMovesCalculator();
-        }
-        else if (piece_type == PieceType.BISHOP){
-            calculator = new BishopMovesCalculator();
-        }
-        else if (piece_type == PieceType.KNIGHT){
-            calculator = new KnightMovesCalculator();
-        }
-        else if (piece_type == PieceType.ROOK){
+        if (type == PieceType.ROOK){
             calculator = new RookMovesCalculator();
         }
-        else if (piece_type == PieceType.PAWN){
+        if (type == PieceType.KNIGHT){
+            calculator = new KnightMovesCalculator();
+        }
+        if (type == PieceType.BISHOP){
+            calculator = new BishopMovesCalculator();
+        }
+        if (type == PieceType.QUEEN){
+            calculator = new QueenMovesCalculator();
+        }
+        if (type == PieceType.KING){
+            calculator = new KingMovesCalculator();
+        }
+        if (type == PieceType.PAWN){
             calculator = new PawnMovesCalculator();
         }
-
-
         return calculator.pieceMoves(board, myPosition);
     }
 }

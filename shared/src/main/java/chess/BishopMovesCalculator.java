@@ -3,142 +3,91 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class BishopMovesCalculator implements PieceMovesCalculator {
-
+public class BishopMovesCalculator implements PieceMovesCalculator{
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
 
-        // Gets the position of the current piece
-        int position_row = myPosition.getRow();
-        int position_col = myPosition.getColumn();
+        int currentRow = myPosition.getRow();
+        int currentCol = myPosition.getColumn();
 
-        // right and to the up
-        int[] rightUpRow = {1,2,3,4,5,6,7}; // -1,-2,-3,-4,-5,-6,-7, 1,2,3,4,5,6,7, -1,-2,-3,-4,-5,-6,-7};
-        int[] rightUpCol = {1,2,3,4,5,6,7}; // -1,-2,-3,-4,-5,-6,-7, -1,-2,-3,-4,-5,-6,-7 ,1,2,3,4,5,6,7};
 
-        // takes into account where the starting position of the piece is
-        for (int i = 0; i < rightUpRow.length; i++) {
-            int positionalRowMoves = (position_row + rightUpRow[i])+1;
-            int positionalColMoves = (position_col + rightUpCol[i])+1;
+        int[] rowUpLeft = {1, 2, 3, 4, 5, 6, 7};
+        int[] colUpLeft = {-1,-2,-3,-4,-5,-6,-7};
 
-            // creates a new position bases off optional moves
-            ChessPosition pieceNewPosition =  new ChessPosition(positionalRowMoves, positionalColMoves);
+        for (int i = 0; i < rowUpLeft.length; i++) {
+            int newRow = rowUpLeft[i] + currentRow;
+            int newCol = colUpLeft[i] + currentCol;
 
-            // checks to see if it's on the board
-            if (pieceNewPosition.getRow() < 8 && pieceNewPosition.getColumn() < 8 && pieceNewPosition.getRow() >= 0 && pieceNewPosition.getColumn() >= 0){
-                // Check to see if the spot is empty or has an enemy piece
-                if (board.getPiece(pieceNewPosition) == null) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-                } else if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (newPosition.getRow() > 0 && newPosition.getRow() < 9 && newPosition.getColumn() > 0 && newPosition.getColumn() < 9) {
+                // if new position is null add it
+                if (board.getPiece(newPosition) == null) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
+                } else if (board.getPiece(newPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
                     break;
-
-                    // Look on "ChessMove.java" line 30 for this. Adds the move to the array
-//                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-//                    if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
-//                        break;
-//                    }
-                } else {
+                }else{
                     break;
                 }
             }
-
         }
+        int[] rowUpRight = {1, 2, 3, 4, 5, 6, 7};
+        int[] colUpRight = {1, 2, 3, 4, 5, 6, 7};
 
-        // left and down
-        int[] leftDownRow = {-1,-2,-3,-4,-5,-6,-7};
-        int[] leftDownCol = {-1,-2,-3,-4,-5,-6,-7};
+        for (int i = 0; i < rowUpRight.length; i++) {
+            int newRow = rowUpRight[i] + currentRow;
+            int newCol = colUpRight[i] + currentCol;
 
-        // takes into account where the starting position of the piece is
-        for (int i = 0; i < leftDownRow.length; i++) {
-            int positionalRowMoves = (position_row + leftDownRow[i])+1;
-            int positionalColMoves = (position_col + leftDownCol[i])+1;
-
-            // creates a new position bases off optional moves
-            ChessPosition pieceNewPosition =  new ChessPosition(positionalRowMoves, positionalColMoves);
-
-            // checks to see if it's on the board
-            if (pieceNewPosition.getRow() < 8 && pieceNewPosition.getColumn() < 8 && pieceNewPosition.getRow() >= 0 && pieceNewPosition.getColumn() >= 0){
-                // Check to see if the spot is empty or has an enemy piece
-                if (board.getPiece(pieceNewPosition) == null) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-                } else if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (newPosition.getRow() > 0 && newPosition.getRow() < 9 && newPosition.getColumn() > 0 && newPosition.getColumn() < 9) {
+                // if new position is null add it
+                if (board.getPiece(newPosition) == null) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
+                } else if (board.getPiece(newPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
                     break;
-
-                    // Look on "ChessMove.java" line 30 for this. Adds the move to the array
-//                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-//                    if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
-//                        break;
-//                    }
-                } else {
+                }else{
                     break;
                 }
             }
-
         }
+        int[] rowDownRight = {-1,-2,-3,-4,-5,-6,-7};
+        int[] colDownRight = { 1, 2, 3, 4, 5, 6, 7};
 
-        // right and down
-        int[] rightDownRow = {1,2,3,4,5,6,7};
-        int[] rightDownCol = {-1,-2,-3,-4,-5,-6,-7};
+        for (int i = 0; i < rowDownRight.length; i++) {
+            int newRow = rowDownRight[i] + currentRow;
+            int newCol = colDownRight[i] + currentCol;
 
-        // takes into account where the starting position of the piece is
-        for (int i = 0; i < rightDownRow.length; i++) {
-            int positionalRowMoves = (position_row + rightDownRow[i])+1;
-            int positionalColMoves = (position_col + rightDownCol[i])+1;
-
-            // creates a new position bases off optional moves
-            ChessPosition pieceNewPosition =  new ChessPosition(positionalRowMoves, positionalColMoves);
-
-            // checks to see if it's on the board
-            if (pieceNewPosition.getRow() < 8 && pieceNewPosition.getColumn() < 8 && pieceNewPosition.getRow() >= 0 && pieceNewPosition.getColumn() >= 0){
-                // Check to see if the spot is empty or has an enemy piece
-                if (board.getPiece(pieceNewPosition) == null) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-                } else if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (newPosition.getRow() > 0 && newPosition.getRow() < 9 && newPosition.getColumn() > 0 && newPosition.getColumn() < 9) {
+                // if new position is null add it
+                if (board.getPiece(newPosition) == null) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
+                } else if (board.getPiece(newPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
                     break;
-
-                    // Look on "ChessMove.java" line 30 for this. Adds the move to the array
-//                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-//                    if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
-//                        break;
-//                    }
-                } else {
+                }else{
                     break;
                 }
             }
-
         }
+        int[] rowDownLeft = {-1,-2,-3,-4,-5,-6,-7};
+        int[] colDownLeft = {-1,-2,-3,-4,-5,-6,-7};
 
-        // left and up
-        int[] leftUpRow = {-1,-2,-3,-4,-5,-6,-7};
-        int[] leftUpCol = {1,2,3,4,5,6,7};
+        for (int i = 0; i < rowDownLeft.length; i++) {
+            int newRow = rowDownLeft[i] + currentRow;
+            int newCol = colDownLeft[i] + currentCol;
 
-        // takes into account where the starting position of the piece is
-        for (int i = 0; i < leftUpRow.length; i++) {
-            int positionalRowMoves = (position_row + leftUpRow[i]) + 1;
-            int positionalColMoves = (position_col + leftUpCol[i]) + 1;
-
-            // creates a new position bases off optional moves
-            ChessPosition pieceNewPosition = new ChessPosition(positionalRowMoves, positionalColMoves);
-
-            // checks to see if it's on the board
-            if (pieceNewPosition.getRow() < 8 && pieceNewPosition.getColumn() < 8 && pieceNewPosition.getRow() >= 0 && pieceNewPosition.getColumn() >= 0) {
-                // Check to see if the spot is empty or has an enemy piece
-                if (board.getPiece(pieceNewPosition) == null) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-                } else if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
+            ChessPosition newPosition = new ChessPosition(newRow, newCol);
+            if (newPosition.getRow() > 0 && newPosition.getRow() < 9 && newPosition.getColumn() > 0 && newPosition.getColumn() < 9) {
+                // if new position is null add it
+                if (board.getPiece(newPosition) == null) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
+                } else if (board.getPiece(newPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
+                    validMoves.add(new ChessMove(myPosition, newPosition, null));
                     break;
-
-                    // Look on "ChessMove.java" line 30 for this. Adds the move to the array
-//                    validMoves.add(new ChessMove(myPosition, pieceNewPosition, null));
-//                    if (board.getPiece(pieceNewPosition).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
-//                        break;
-//                    }
-                } else {
+                }else{
                     break;
                 }
             }
@@ -146,3 +95,4 @@ public class BishopMovesCalculator implements PieceMovesCalculator {
         return validMoves;
     }
 }
+
