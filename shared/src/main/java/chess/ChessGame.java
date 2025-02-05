@@ -68,11 +68,12 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        // put the if statement invalid checks here.
+        if (board.getPiece(move.getStartPosition()) == null){
+            throw new InvalidMoveException("Current Position is Empty");
+        }
         ChessPosition currentMove = move.getEndPosition();
         ChessPosition currentPosition = move.getStartPosition();
-
-        // put the if statement invalid checks here.
-
         board.addPiece(currentMove, board.getPiece(move.getStartPosition()));
         board.addPiece(currentPosition, null);
 
