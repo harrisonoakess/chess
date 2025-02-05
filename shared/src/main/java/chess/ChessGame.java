@@ -68,15 +68,32 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
+        ChessPiece piece = board.getPiece(move.getStartPosition());
         // put the if statement invalid checks here.
         if (board.getPiece(move.getStartPosition()) == null){
-            throw new InvalidMoveException("Current Position is Empty");
+            throw new InvalidMoveException("Current position is empty");
         }
-        ChessPosition currentMove = move.getEndPosition();
-        ChessPosition currentPosition = move.getStartPosition();
-        board.addPiece(currentMove, board.getPiece(move.getStartPosition()));
-        board.addPiece(currentPosition, null);
+        if (!validMoves(move.getStartPosition()).contains(move)){
+            throw new InvalidMoveException("This is not a valid move");
+        }
+        if (board.getPiece(move.getStartPosition()).getTeamColor() != getTeamTurn()){
+            throw new InvalidMoveException("It is not your turn");
+        }
+        if (isInCheck(piece.getTeamColor())){
+            throw new InvalidMoveException("You are in check");
+        }
 
+        if (move.getPromotionPiece() != null){
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
+        board.addPiece(move.getEndPosition(), piece);
+        board.addPiece(move.getStartPosition(), null);
+
+        if (board.getPiece(move.getEndPosition()).getTeamColor() == TeamColor.WHITE){
+            setTeamTurn(TeamColor.BLACK);
+        } else{
+            setTeamTurn(TeamColor.WHITE);
+        }
     }
 
     /**
@@ -86,7 +103,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        return false;
     }
 
     /**
