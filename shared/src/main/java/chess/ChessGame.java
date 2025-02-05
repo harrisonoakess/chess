@@ -70,6 +70,9 @@ public class ChessGame {
     public void makeMove(ChessMove move) throws InvalidMoveException {
         ChessPosition currentMove = move.getEndPosition();
         ChessPosition currentPosition = move.getStartPosition();
+
+        // put the if statement invalid checks here.
+
         board.addPiece(currentMove, board.getPiece(move.getStartPosition()));
         board.addPiece(currentPosition, null);
 
