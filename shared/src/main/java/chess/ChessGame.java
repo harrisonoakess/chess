@@ -103,7 +103,24 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
+        // for each of the calculators
+            // for each of the moves in the calculators
+                // if one of the moves == to where the king is
+                    // return true
+//        ChessPosition kingPosition =
+
         return false;
+    }
+
+    private ChessPosition kingPosition(TeamColor teamColor){
+        for (int row = 0; row < board.board.length; row++){
+            for (int col = 0; row < board.board.length; col++){
+                if (board.getPiece(new ChessPosition(row, col)).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(new ChessPosition(row, col)).getTeamColor() == teamColor){
+                    return new ChessPosition(row, col);
+                }
+            }
+        }
+        return null;
     }
 
     /**
