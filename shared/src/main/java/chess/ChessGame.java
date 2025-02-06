@@ -82,6 +82,9 @@ public class ChessGame {
         if (isInCheck(piece.getTeamColor())){
             throw new InvalidMoveException("You are in check");
         }
+        if (isInCheckmate(piece.getTeamColor())){
+            throw new InvalidMoveException("You are in checkmate");
+        }
 
         if (move.getPromotionPiece() != null){
             piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
@@ -103,7 +106,7 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        for ()
+        return false;
     }
 
     /**
