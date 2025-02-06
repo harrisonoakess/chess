@@ -103,18 +103,29 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        // for each of the calculators
-            // for each of the moves in the calculators
+        // for each of the pieces
+            // for each of the valid moves for each piece
                 // if one of the moves == to where the king is
                     // return true
-//        ChessPosition kingPosition =
+        for (int row = 0; row < board.board.length; row++){
+            for (int col = 0; col < board.board.length; col++){
+                ChessPosition piecePosition = new ChessPosition(row, col);
+                ChessPiece piece = board.getPiece(piecePosition);
+                Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
+                for (ChessMove move : moves){
+                    if (move.getEndPosition() == kingPosition(teamColor)){
+                        return true;
+                    }
+                }
 
+            }
+        }
         return false;
     }
 
     private ChessPosition kingPosition(TeamColor teamColor){
         for (int row = 0; row < board.board.length; row++){
-            for (int col = 0; row < board.board.length; col++){
+            for (int col = 0; col < board.board.length; col++){
                 if (board.getPiece(new ChessPosition(row, col)).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(new ChessPosition(row, col)).getTeamColor() == teamColor){
                     return new ChessPosition(row, col);
                 }
