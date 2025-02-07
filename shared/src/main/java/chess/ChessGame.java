@@ -184,27 +184,26 @@ public class ChessGame {
         for (int row = 1; row <= board.board.length; row++) {
             for (int col = 1; col <= board.board.length; col++) {
                 ChessPosition piecePosition = new ChessPosition(row, col);
-                if (board.getPiece(piecePosition) != null) {
-                    ChessPiece piece = board.getPiece(piecePosition);
+                ChessPiece piece = board.getPiece(piecePosition);
+
+                if (board.getPiece(piecePosition) != null && piece.getTeamColor() == teamColor) {
                     Collection<ChessMove> moves = piece.pieceMoves(board, piecePosition);
                     for (ChessMove move : moves) {
-//                        ChessPiece originalPiece = board.getPiece(move.getEndPosition());
+                        ChessPiece originalPiece = board.getPiece(move.getEndPosition());
                         board.addPiece(move.getEndPosition(), piece);
                         board.addPiece(move.getStartPosition(), null);
-
-                        boolean check = isInCheck(teamColor);
-
-                        board.addPiece(move.getStartPosition(), piece);
-                        board.addPiece(move.getEndPosition(), null);
-                        if (check == false) {
+                        if (isInCheck(teamColor) == false){
+                            board.addPiece(move.getStartPosition(), piece);
+                            board.addPiece(move.getEndPosition(), originalPiece);
                             return false;
                         }
+                        board.addPiece(move.getStartPosition(), piece);
+                        board.addPiece(move.getEndPosition(), originalPiece);
                     }
-
                 }
             }
         }
-        return false;
+        return true;
     }
 
     /**
