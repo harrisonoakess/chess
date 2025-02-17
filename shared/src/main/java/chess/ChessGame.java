@@ -148,7 +148,9 @@ public class ChessGame {
         for (int row = 1; row <= board.board.length; row++){
             for (int col = 1; col <= board.board.length; col++){
                 if (board.getPiece(new ChessPosition(row, col)) != null){
-                    if (board.getPiece(new ChessPosition(row, col)).getPieceType() == ChessPiece.PieceType.KING && board.getPiece(new ChessPosition(row, col)).getTeamColor() == teamColor){
+                    ChessPiece kingPiece = board.getPiece(new ChessPosition(row, col));
+                    if (kingPiece.getPieceType() == ChessPiece.PieceType.KING && kingPiece.getTeamColor() == teamColor){
+
                         return new ChessPosition(row, col);
                     }
                 }
