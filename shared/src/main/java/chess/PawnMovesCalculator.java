@@ -2,14 +2,25 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class PawnMovesCalculator implements PieceMovesCalculator {
+
     @Override
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         Collection<ChessMove> validMoves = new ArrayList<>();
 
+
         if (board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE) {
-            // if front clear
+            validMoves = addWhiteMoves(board, myPosition, validMoves);
+        } else {
+            validMoves = addBlackMoves(board, myPosition, validMoves);
+        }
+        return validMoves;
+    }
+
+    public Collection<ChessMove> addWhiteMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves){
+        // if front clear
             if (myPosition.getRow() + 1 > 0 && myPosition.getRow() + 1 < 9 && myPosition.getColumn() > 0 && myPosition.getColumn() < 9) {
                 ChessPosition newPositionWhite = new ChessPosition(myPosition.getRow() + 1, myPosition.getColumn());
                 if (board.getPiece(newPositionWhite) == null) {
@@ -59,10 +70,11 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                 }
             }
 
+        return validMoves;
+    }
 
-
-
-        }else{ChessPosition newPositionBlack = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
+    public Collection<ChessMove> addBlackMoves(ChessBoard board, ChessPosition myPosition, Collection<ChessMove> validMoves) {
+        ChessPosition newPositionBlack = new ChessPosition(myPosition.getRow() - 1, myPosition.getColumn());
             if (myPosition.getRow() + 1 > 0 && myPosition.getRow() + 1 < 9 && myPosition.getColumn() > 0 && myPosition.getColumn() < 9) {
                 if (board.getPiece(newPositionBlack) == null) {
                     if (myPosition.getRow() == 2) {
@@ -110,7 +122,6 @@ public class PawnMovesCalculator implements PieceMovesCalculator {
                     }
                 }
             }
-        }
         return validMoves;
     }
 }
