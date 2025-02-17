@@ -99,25 +99,10 @@ public class ChessGame {
         if (!validMoves(move.getStartPosition()).contains(move)){
             throw new InvalidMoveException("This is not a valid move");
         }
-//        if (isInCheck(piece.getTeamColor())){
-//            throw new InvalidMoveException("You are in check");
-//        }
-//        if (isInCheckmate(piece.getTeamColor())){
-//            throw new InvalidMoveException("You are in checkmate");
-//        }
 
-//        if (move.getPromotionPiece() != null){
-//            currentPiece = new ChessPiece(currentPiece.getTeamColor(), move.getPromotionPiece());
-//        }
         board.addPiece(move.getEndPosition(), currentPiece);
         board.addPiece(move.getStartPosition(), null);
 
-//        if (isInCheck(currentPiece.getTeamColor())){
-//            ChessPiece newPiece = board.getPiece(move.getEndPosition());
-//            board.addPiece(move.getEndPosition(), currentPiece);
-//            board.addPiece(move.getStartPosition(), null);
-//            throw new InvalidMoveException("You are in check");
-//        }
         if (move.getPromotionPiece() != null){
             ChessPiece promotionPiece = new ChessPiece(currentPiece.getTeamColor(), move.getPromotionPiece());
             board.addPiece(move.getEndPosition(), promotionPiece);
