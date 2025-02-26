@@ -1,8 +1,10 @@
 package server;
-
+import dataaccess.datastorage.MemoryUserDAO;
 import spark.*;
 
 public class Server {
+    private final MemoryUserDAO userDAO = new MemoryUserDAO(); // Example DAO instance
+
 
     public int run(int desiredPort) {
         Spark.port(desiredPort);
