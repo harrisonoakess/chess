@@ -16,6 +16,9 @@ public class MemoryUserDAO implements UserDAO {
     public void createNewUser(UserData user) throws DataAccessException {
         if (users.containsKey(user.username())){
             throw new DataAccessException("Error: already taken");
+        }if (Objects.equals(user.password(), null)){
+            throw new DataAccessException("Password cannot be blank");
+
         }else {
             // puts in the user: key=username, value=user (record)
             users.put(user.username(), user);

@@ -45,6 +45,10 @@ public class Server {
                 response.status(200);
                 return gson.toJson(result);
             }catch (DataAccessException DataAccessException){
+                if (Objects.equals(DataAccessException.getMessage(), "Password cannot be blank")){
+                    response.status(400);
+                    return gson.toJson(new AddErrorMessage("Error: User already taken"));
+                }
                 if (Objects.equals(DataAccessException.getMessage(), "Error: already taken")){
                     response.status(403);
                     return gson.toJson(new AddErrorMessage("Error: User already taken"));
@@ -52,10 +56,11 @@ public class Server {
                 response.status(500);
                 return gson.toJson((new AddErrorMessage("Error: "+ DataAccessException.getMessage())));
 
-            } catch(Exception exception){ // this will hopefully tell me if anything else other than the database is failing
-                response.status(400);
-                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
             }
+//            catch(Exception exception){ // this will hopefully tell me if anything else other than the database is failing
+//                response.status(400);
+//                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
+//            }
         });
     }
 
