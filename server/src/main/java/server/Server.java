@@ -65,12 +65,12 @@ public class Server {
                 return gson.toJson(loginResult);
             } catch(DataAccessException dataAccessException){
                 if(Objects.equals(dataAccessException.getMessage(), "User does not exist")){
-                    response.status(401);
-                    return gson.toJson(new AddErrorMessage("User does not exist"));
+                    response.status(200);
+                    return gson.toJson(new AddErrorMessage("Error: user does not exist"));
                 }
                 if (Objects.equals(dataAccessException.getMessage(), "Password does not match")){
                     response.status(401);
-                    return gson.toJson(new AddErrorMessage("Password does not match"));
+                    return gson.toJson(new AddErrorMessage("Error: password does not match"));
                 }
                 response.status(500);
                 return gson.toJson((new AddErrorMessage("Error: "+ dataAccessException.getMessage())));
