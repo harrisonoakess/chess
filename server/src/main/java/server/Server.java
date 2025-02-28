@@ -2,9 +2,7 @@ package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.MemoryUserDAO;
-import model.RegisterRequest;
-import model.RegisterResult;
-import model.UserData;
+import model.*;
 import service.UserService;
 import spark.*;
 
@@ -62,6 +60,18 @@ public class Server {
 //                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
 //            }
         });
+
+        Spark.post("/session", (request, response) -> {
+            try {
+                LoginRequest loginRequest = gson.fromJson(request.body(), LoginRequest.class);
+                LoginResult loginResult = userService.login(loginRequest);
+                response.status(200);
+                return gson.toJson(loginResult);
+            }
+
+            return null;
+        });
+
     }
 
     public void stop() {

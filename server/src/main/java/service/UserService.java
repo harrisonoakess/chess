@@ -2,11 +2,7 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
-import dataaccess.datastorage.MemoryUserDAO;
-import model.AuthData;
-import model.RegisterRequest;
-import model.RegisterResult;
-import model.UserData;
+import model.*;
 
 import java.util.UUID;
 
@@ -23,6 +19,13 @@ public class UserService {
         String authToken = UUID.randomUUID().toString();
         // store the authToken here (not implemented yet)
         return new RegisterResult(request.username(), authToken);
+    }
+
+    public LoginResult login(LoginRequest request) throws DataAccessException{
+        UserData loginUser = new UserData(request.username(), request.username(), null);
+        userDAO.loginUser(loginUser);
+        String authToken = UUID.randomUUID().toString();
+        return new LoginResult(request.username(), authToken);
     }
 }
 
