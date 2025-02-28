@@ -6,6 +6,7 @@ import model.*;
 import service.UserService;
 import spark.*;
 
+import javax.xml.crypto.Data;
 import java.util.Objects;
 
 public class Server {
@@ -53,12 +54,7 @@ public class Server {
                 }
                 response.status(500);
                 return gson.toJson((new AddErrorMessage("Error: "+ DataAccessException.getMessage())));
-
             }
-//            catch(Exception exception){ // this will hopefully tell me if anything else other than the database is failing
-//                response.status(400);
-//                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//            }
         });
 
         Spark.post("/session", (request, response) -> {
@@ -67,9 +63,20 @@ public class Server {
                 LoginResult loginResult = userService.login(loginRequest);
                 response.status(200);
                 return gson.toJson(loginResult);
+            } catch(DataAccessException dataAccessException){
+                if(Objects.equals(dataAccessException.getMessage(), "User does not exist")){
+                    response.status(401);
+                    return gson.toJson(new AddErrorMessage("User does not exist"));
+                }
+                if (Objects.equals(dataAccessException.getMessage(), "Password does not match")){
+                    response.status(401);
+                    return gson.toJson(new AddErrorMessage("Password does not match"));
+                }
+                response.status(500);
+                return gson.toJson((new AddErrorMessage("Error: "+ dataAccessException.getMessage())));
             }
 
-            return null;
+
         });
 
     }
