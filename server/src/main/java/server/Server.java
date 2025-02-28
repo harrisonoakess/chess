@@ -1,16 +1,15 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
-import dataaccess.datastorage.MemoryUserDAO;
+import dataaccess.datastorage.DBUserDAO;
 import model.*;
 import service.UserService;
 import spark.*;
 
-import javax.xml.crypto.Data;
 import java.util.Objects;
 
 public class Server {
-    private final MemoryUserDAO userDAO = new MemoryUserDAO();
+    private final DBUserDAO userDAO = new DBUserDAO();
     private final UserService userService = new UserService(userDAO);
     private final Gson gson = new Gson();
 

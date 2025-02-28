@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class MemoryUserDAO implements UserDAO {
+public class DBUserDAO implements UserDAO {
     private final Map<String, UserData> users = new HashMap<>();
 
     @Override

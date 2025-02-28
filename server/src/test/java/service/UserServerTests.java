@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.DataAccessException;
-import dataaccess.datastorage.MemoryUserDAO;
+import dataaccess.datastorage.DBUserDAO;
 import model.LoginRequest;
 import model.LoginResult;
 import model.RegisterRequest;
@@ -19,7 +19,7 @@ public class UserServerTests {
 
     @BeforeEach
     public void testReset(){
-        MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
+        DBUserDAO memoryUserDAO = new DBUserDAO();
         userService = new UserService(memoryUserDAO);
 
     }

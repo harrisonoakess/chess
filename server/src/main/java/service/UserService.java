@@ -1,7 +1,9 @@
 package service;
 
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
+import dataaccess.datastorage.DBAuthDAO;
 import model.*;
 
 import java.util.UUID;
@@ -16,16 +18,16 @@ public class UserService {
     public RegisterResult register(RegisterRequest request) throws DataAccessException {
         UserData getNewUser = new UserData(request.username(), request.password(), request.email());
         userDAO.createNewUser(getNewUser);
-        String authToken = UUID.randomUUID().toString();
+        AuthData userAuth = new DBAuthDAO().createUserAuth(request.username());
         // store the authToken here (not implemented yet)
-        return new RegisterResult(request.username(), authToken);
+        return new RegisterResult(request.username(), userAuth.authToken());
     }
 
     public LoginResult login(LoginRequest request) throws DataAccessException{
         UserData loginUser = new UserData(request.username(), request.password(), null);
         userDAO.loginUser(loginUser);
-        String authToken = UUID.randomUUID().toString();
-        return new LoginResult(request.username(), authToken);
+        AuthData userAuth = new DBAuthDAO().createUserAuth(request.username());
+        return new LoginResult(request.username(), userAuth.authToken());
     }
 }
 
