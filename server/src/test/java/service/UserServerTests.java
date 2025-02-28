@@ -2,14 +2,14 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.MemoryUserDAO;
+import model.LoginRequest;
+import model.LoginResult;
 import model.RegisterRequest;
 import model.RegisterResult;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import javax.xml.crypto.Data;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -21,6 +21,7 @@ public class UserServerTests {
     public void testReset(){
         MemoryUserDAO memoryUserDAO = new MemoryUserDAO();
         userService = new UserService(memoryUserDAO);
+
     }
 
     @Test
@@ -53,6 +54,46 @@ public class UserServerTests {
         });
         assertEquals("Password cannot be blank", exception.getMessage());
     }
+
+    @Test
+    @DisplayName("Successful login")
+    public void testSuccessfullyLogin() throws DataAccessException{
+        RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
+        userService.register(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("fake_username", "fake_password");
+        LoginResult loginResult = userService.login(loginRequest);
+
+        assertEquals(loginRequest.username(), loginResult.username());
+    }
+    @Test
+    @DisplayName("User does not exist")
+    public void testUsernameNotFound() throws DataAccessException{
+        RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
+        userService.register(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("fake_username_", "fake_password");
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            userService.login(loginRequest);
+        });
+        assertEquals("User does not exists", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Incorrect password")
+    public void testIncorrectPassword() throws DataAccessException{
+        RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
+        userService.register(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("fake_username", "fake_password_");
+
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> {
+            userService.login(loginRequest);
+        });
+        assertEquals("Password does not match", exception.getMessage());
+    }
+
 
 }
 

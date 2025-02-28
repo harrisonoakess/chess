@@ -22,7 +22,7 @@ public class UserService {
     }
 
     public LoginResult login(LoginRequest request) throws DataAccessException{
-        UserData loginUser = new UserData(request.username(), request.username(), null);
+        UserData loginUser = new UserData(request.username(), request.password(), null);
         userDAO.loginUser(loginUser);
         String authToken = UUID.randomUUID().toString();
         return new LoginResult(request.username(), authToken);

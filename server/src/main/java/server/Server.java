@@ -72,12 +72,14 @@ public class Server {
                     response.status(401);
                     return gson.toJson(new AddErrorMessage("Error: password does not match"));
                 }
-                response.status(500);
+                response.status(401);
                 return gson.toJson((new AddErrorMessage("Error: "+ dataAccessException.getMessage())));
             }
-
-
         });
+
+//        Spark.delete("/session", ((request, response) -> {
+//
+//        }));
 
     }
 
