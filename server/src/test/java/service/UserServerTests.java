@@ -1,6 +1,8 @@
 package service;
 
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBUserDAO;
 import model.LoginRequest;
 import model.LoginResult;
@@ -16,11 +18,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class UserServerTests {
     private UserService userService;
+    private DBAuthDAO authDAO;
 
     @BeforeEach
     public void testReset(){
-        DBUserDAO memoryUserDAO = new DBUserDAO();
-        userService = new UserService(memoryUserDAO);
+        DBUserDAO memoryUserDAO = new DBUserDAO(authDAO);
+        userService = new UserService(memoryUserDAO, authDAO);
 
     }
 

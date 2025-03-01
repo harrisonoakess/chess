@@ -11,6 +11,11 @@ import java.util.Objects;
 
 public class DBUserDAO implements UserDAO {
     private final Map<String, UserData> users = new HashMap<>();
+    private final DBAuthDAO authDAO;
+
+    public DBUserDAO(DBAuthDAO authDAO) {
+        this.authDAO = authDAO;
+    }
 
     @Override
     public void createNewUser(UserData user) throws DataAccessException {
@@ -37,7 +42,11 @@ public class DBUserDAO implements UserDAO {
     }
 
     @Override
-    public void logoutUser(UserData user, AuthData auth) {
+    public void logoutUser(String authToken) throws DataAccessException {
+        if (!authDAO.checkUserAuth(authToken)){
+            throw new DataAccessException("User not logged in");
+        }
+        authDAO.deleteUserAuth(authToken);
     }
 
     public void ClearUsers(){

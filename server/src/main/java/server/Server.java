@@ -1,16 +1,21 @@
 package server;
 import com.google.gson.Gson;
+import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
+import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBUserDAO;
 import model.*;
 import service.UserService;
 import spark.*;
+import dataaccess.AuthDAO;
 
+import javax.xml.crypto.Data;
 import java.util.Objects;
 
 public class Server {
-    private final DBUserDAO userDAO = new DBUserDAO();
-    private final UserService userService = new UserService(userDAO);
+    private final DBAuthDAO authDAO = new DBAuthDAO();
+    private final DBUserDAO userDAO = new DBUserDAO(authDAO);
+    private final UserService userService = new UserService(userDAO, authDAO);
     private final Gson gson = new Gson();
 
 
@@ -76,9 +81,18 @@ public class Server {
             }
         });
 
-//        Spark.delete("/session", ((request, response) -> {
-//
-//        }));
+        Spark.delete("/session", ((request, response) -> {
+            try{
+                String authToken = request.headers("Authorization");
+                userService.logout(authToken);
+                response.status(200);
+                return "{}";
+
+            } catch(DataAccessException e) {
+                response.status(401);
+                return gson.toJson(new AddErrorMessage("Error: " + e.getMessage()));
+            }
+        }));
 
     }
 
@@ -89,6 +103,7 @@ public class Server {
 
     private static class AddErrorMessage {
         String message;
+
         AddErrorMessage(String message) {
             this.message = message;
         }

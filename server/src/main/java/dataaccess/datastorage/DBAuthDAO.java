@@ -15,21 +15,21 @@ public class DBAuthDAO implements AuthDAO {
     public AuthData createUserAuth(String username) throws DataAccessException {
         String newAuth = java.util.UUID.randomUUID().toString();
         AuthData userAuth = new AuthData(username, newAuth);
-        authTokens.put(username, userAuth);
+        authTokens.put(newAuth, userAuth);
         return userAuth;
     }
 
     @Override
-    public void deleteUserAuth(String username) throws DataAccessException {
-        if (!checkUserAuth(username)) {
+    public void deleteUserAuth(String authToken) throws DataAccessException {
+        if (!checkUserAuth(authToken)) {
             throw new DataAccessException("User not authenticated");
         }
-        authTokens.remove(username);
+        authTokens.remove(authToken);
     }
 
     @Override
-    public boolean checkUserAuth(String username) throws DataAccessException {
-        return authTokens.containsKey(username);
+    public boolean checkUserAuth(String authToken) throws DataAccessException {
+        return authTokens.containsKey(authToken);
     }
 
     @Override
