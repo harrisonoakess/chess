@@ -21,11 +21,20 @@ public class AuthTests {
 
     @Test
     @DisplayName("Create new auth token")
-    public void testCreateNewToken() throws DataAccessException{
+    public void testCreateUserAuth() throws DataAccessException{
         AuthData authData = authentication.createUserAuth("fake_username");
 
         Assertions.assertEquals("fake_username", authData.username());
         Assertions.assertNotNull(authData.authToken());
         Assertions.assertFalse(authData.authToken().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Delete auth token")
+    public void testDeleteUserAuth() throws DataAccessException{
+        AuthData authData = authentication.createUserAuth("fake_username");
+        authentication.deleteUserAuth("fake_username");
+
+        Assertions.assertFalse(authentication.checkUserAuth("fake_username"));
     }
 }

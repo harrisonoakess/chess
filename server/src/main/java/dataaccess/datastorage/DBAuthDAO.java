@@ -20,16 +20,16 @@ public class DBAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteUserAuth(UserData user) throws DataAccessException {
-        if (!checkUserAuth(user)) {
+    public void deleteUserAuth(String username) throws DataAccessException {
+        if (!checkUserAuth(username)) {
             throw new DataAccessException("User not authenticated");
         }
-        authTokens.remove(user.username());
+        authTokens.remove(username);
     }
 
     @Override
-    public boolean checkUserAuth(UserData user) throws DataAccessException {
-        return authTokens.containsKey(user.username());
+    public boolean checkUserAuth(String username) throws DataAccessException {
+        return authTokens.containsKey(username);
     }
 
     @Override
