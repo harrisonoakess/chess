@@ -96,64 +96,6 @@ public class Server {
                 return gson.toJson(new AddErrorMessage("Error: " + e.getMessage()));
             }
         }));
-//        // create new game
-//        Spark.post("/game", (request, response) -> {
-//            try{
-//                String authToken = request.headers("Authorization");
-//                CreateGameRequest createGameRequest = gson.fromJson(request.body(), CreateGameRequest.class);
-//                CreateGameResult createGameResult = gameService.createGame(createGameRequest.gameName(), authToken);
-//                response.status(200);
-//                return gson.toJson(createGameResult);
-//            } catch (DataAccessException exception){
-//                response.status(401);
-//                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//            }
-//        });
-//        // join game
-//        Spark.put("/game", ((request, response) -> {
-//            try{
-//                String authToken = request.headers("Authorization");
-//                JoingGameRequest joinGameRequest = gson.fromJson(request.body(), JoingGameRequest.class);
-//                gameService.joinGame(joinGameRequest.playerColor(), joinGameRequest.gameID(), authToken);
-//                response.status(200);
-//                return gson.toJson(new AddErrorMessage("test"));
-//            } catch (DataAccessException exception){
-//                if (Objects.equals(exception.getMessage(), "Team already filled")){
-//                    response.status(403);
-//                    return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//                }
-//                if (Objects.equals(exception.getMessage(), "Invalid Game ID")){
-//                    response.status(400);
-//                    return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//                }
-//                if (Objects.equals(exception.getMessage(), "Please choose Black team or White team")){
-//                    response.status(400);
-//                    return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//                }
-//                response.status(401);
-//                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//            }
-//        }));
-//        // list all games
-//        Spark.get("/game", (request,response) -> {
-//            try{
-//                String authToken = request.headers("Authorization");
-//                Map<Integer, GameData> listOfGames = gameService.listGames(authToken);
-//                GameData[] gamesArray = listOfGames.values().toArray(new GameData[0]);
-//                response.status(200);
-//                return gson.toJson(new ListAllGamesResult(gamesArray));
-//
-////                response.status(200);
-////                return gson.toJson(listOfGames);
-//            } catch (DataAccessException exception){
-//                if (Objects.equals(exception.getMessage(), "User not logged in")){
-//                    response.status(401);
-//                    return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//                }
-//                response.status(401);
-//                return gson.toJson(new AddErrorMessage("Error: " + exception.getMessage()));
-//            }
-//        });
 
         Spark.delete("/db", ((request, response) -> {
             gameService.clearData();
