@@ -22,6 +22,7 @@ public class UserServerTests {
 
     @BeforeEach
     public void testReset(){
+        authDAO = new DBAuthDAO();
         DBUserDAO memoryUserDAO = new DBUserDAO(authDAO);
         userService = new UserService(memoryUserDAO, authDAO);
 

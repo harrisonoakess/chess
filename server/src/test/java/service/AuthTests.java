@@ -33,8 +33,8 @@ public class AuthTests {
     @DisplayName("Delete auth token")
     public void testDeleteUserAuth() throws DataAccessException{
         AuthData authData = authentication.createUserAuth("fake_username");
-        authentication.deleteUserAuth("fake_username");
+        authentication.deleteUserAuth(authData.authToken());
 
-        Assertions.assertFalse(authentication.checkUserAuth("fake_username"));
+        Assertions.assertFalse(authentication.checkUserAuth(authData.authToken()));
     }
 }
