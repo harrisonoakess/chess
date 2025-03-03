@@ -84,7 +84,7 @@ public class GameServiceTests {
         CreateGameResult result = gameService.createGame(gameName, authToken);
 
         Exception exception = assertThrows(DataAccessException.class, () -> {
-            gameService.joinGame("WHITE", null, "bad token");
+            gameService.joinGame("WHITE", null, authToken);
         });
 
         assertEquals("Invalid Game ID", exception.getMessage());
