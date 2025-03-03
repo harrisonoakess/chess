@@ -55,17 +55,6 @@ public class DBGameDAO {
     public Map<Integer, GameData> listGames() throws DataAccessException {
         return new HashMap<>(games);
     }
-
-    public int getGameID(String gameName) throws DataAccessException {
-        for (Map.Entry<Integer, GameData> entry : games.entrySet()) {
-            if (entry.getValue().gameName().equals(gameName)) {
-                return entry.getKey();
-            }
-        }
-        throw new DataAccessException("Game not found");
-    }
-
-
     public void clearGames(){
         games.clear();
     }

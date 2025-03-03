@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class GameServiceTests {
     private DBAuthDAO authDAO;
     private DBGameDAO gameDAO;
@@ -63,7 +66,27 @@ public class GameServiceTests {
         Assertions.assertEquals(username, game.blackUsername());
     }
 
+    @Test
+    @DisplayName("Join while not logged in")
+    public void testJoinWhileNotLoggedIn() throws Exception {
+        String gameName = "fake_game";
+        CreateGameResult result = gameService.createGame(gameName, authToken);
 
+        Exception exception = assertThrows(DataAccessException.class, () -> {
+            gameService.joinGame("WHITE", String.valueOf(result.gameID()), "bad token");
+        });
+        assertEquals("User not logged in", exception.getMessage());
+    }
+    @Test
+    @DisplayName("ID left null")
+    public void testInvalidGameID() throws Exception {
+        String gameName = "fake_game";
+        CreateGameResult result = gameService.createGame(gameName, authToken);
 
+        Exception exception = assertThrows(DataAccessException.class, () -> {
+            gameService.joinGame("WHITE", null, "bad token");
+        });
 
+        assertEquals("Invalid Game ID", exception.getMessage());
+    }
 }
