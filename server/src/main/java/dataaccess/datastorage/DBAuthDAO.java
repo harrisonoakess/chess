@@ -3,7 +3,6 @@ package dataaccess.datastorage;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import model.AuthData;
-import model.UserData;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,7 +32,12 @@ public class DBAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void ClearDatabase() {
+    public String returnUsername(String authToken) throws DataAccessException{
+        return authTokens.get(authToken).username();
+    }
+
+    @Override
+    public void clearAuthTokens() {
         authTokens.clear();
     }
 }

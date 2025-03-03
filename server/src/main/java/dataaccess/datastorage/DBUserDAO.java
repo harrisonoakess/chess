@@ -49,7 +49,7 @@ public class DBUserDAO implements UserDAO {
         authDAO.deleteUserAuth(authToken);
     }
 
-    public void ClearUsers(){
+    public void clearUsers(){
         users.clear();
     }
 }

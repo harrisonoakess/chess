@@ -7,7 +7,7 @@ import org.eclipse.jetty.server.Authentication;
 import java.util.List;
 
 public interface GameDAO {
-    List<GameData> listAllGames();
-    GameData createNewGame(GameData name_of_game);
-    void joinGame(UserData user);
+//    List<GameData> listAllGames();
+    void createNewGame(GameData gameInfo);
+//    void joinGame(UserData user);
 }

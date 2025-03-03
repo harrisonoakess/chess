@@ -34,5 +34,10 @@ public class UserService {
         userDAO.logoutUser(authToken);
     }
 
+    public void clearData(){
+        userDAO.clearUsers();
+        authDAO.clearAuthTokens();
+    }
+
 }
 
