@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.crypto.Data;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 public class AuthTests {
     private DBAuthDAO authentication;
 
@@ -36,5 +38,16 @@ public class AuthTests {
         authentication.deleteUserAuth(authData.authToken());
 
         Assertions.assertFalse(authentication.checkUserAuth(authData.authToken()));
+    }
+
+    @Test
+    @DisplayName("auth token does not exist")
+    public void testAuthNotFound() throws Exception{
+        AuthData authData = authentication.createUserAuth("fake_username");
+        Exception exception = assertThrows(Exception.class, () -> {
+            authentication.deleteUserAuth("fake auth");
+        });
+
+        Assertions.assertEquals("User not authenticated", exception.getMessage());
     }
 }

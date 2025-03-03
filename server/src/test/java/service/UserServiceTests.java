@@ -1,6 +1,5 @@
 package service;
 
-import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBUserDAO;
@@ -16,7 +15,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UserServerTests {
+public class UserServiceTests {
     private UserService userService;
     private DBAuthDAO authDAO;
 
