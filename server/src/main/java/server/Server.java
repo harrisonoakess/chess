@@ -1,6 +1,8 @@
 package server;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
+import dataaccess.datastorage.CreateNewTables;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBGameDAO;
 import dataaccess.datastorage.DBUserDAO;
@@ -22,6 +24,12 @@ public class Server {
 
 
     public int run(int desiredPort) {
+        try {
+            DatabaseManager.createDatabase();
+            CreateNewTables.initialize();
+        } catch (DataAccessException e) {
+            throw new RuntimeException(e.getMessage());
+        }
         Spark.port(desiredPort);
 
         Spark.staticFiles.location("web");
