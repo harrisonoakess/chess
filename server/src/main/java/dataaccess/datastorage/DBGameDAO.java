@@ -7,6 +7,7 @@ import model.CreateGameResult;
 import model.GameData;
 
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,10 +21,10 @@ public class DBGameDAO {
     }
 
     public CreateGameResult createNewGame(GameData gameInfo) throws DataAccessException {
-        String insertGame = "INSERT INTO games (whiteUsername, blackUsername, gameName, gameState) VALUES (?, ?, ?, ?)";
+        String insertGame = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
         try (
                 var conn = DatabaseManager.getConnection();
-                var ps = conn.prepareStatement(insertGame)) {
+                var ps = conn.prepareStatement(insertGame, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, gameInfo.whiteUsername());
             ps.setString(2, gameInfo.blackUsername());
             ps.setString(3, gameInfo.gameName());
@@ -45,7 +46,7 @@ public class DBGameDAO {
 
     public void joinWhiteTeam(String username, Integer gameID) throws DataAccessException, SQLException {
         String checkWhiteTeam = "Select COUNT(*) FROM games WHERE gameID = ? AND whiteUsername IS NOT NULL";
-        String joinWhite = "UPDATE games SET whiteUsername =?";
+        String joinWhite = "UPDATE games SET whiteUsername =? WHERE gameID = ?";
         try (
             var conn = DatabaseManager.getConnection();
             var checkPS = conn.prepareStatement(checkWhiteTeam);
@@ -53,7 +54,7 @@ public class DBGameDAO {
             checkPS.setInt(1, gameID);
             try (var rowsAffected = checkPS.executeQuery()) {
                 if (rowsAffected.next() && rowsAffected.getInt(1) > 0) {
-                    throw new DataAccessException("White team already filled");
+                    throw new DataAccessException("Team already filled");
                 }
             } catch (SQLException e) {
                 throw new DataAccessException(e.getMessage());
@@ -73,7 +74,7 @@ public class DBGameDAO {
 
     public void joinBlackTeam(String username, Integer gameID) throws DataAccessException {
         String checkBlackTeam = "Select COUNT(*) FROM games WHERE gameID = ? AND blackUsername IS NOT NULL";
-        String joinBlack = "UPDATE games SET blackUsername =?";
+        String joinBlack = "UPDATE games SET blackUsername =? WHERE gameID = ?";
         try (
                 var conn = DatabaseManager.getConnection();
                 var checkPS = conn.prepareStatement(checkBlackTeam);
@@ -81,10 +82,10 @@ public class DBGameDAO {
             checkPS.setInt(1, gameID);
             try (var rowsAffected = checkPS.executeQuery()) {
                 if (rowsAffected.next() && rowsAffected.getInt(1) > 0) {
-                    throw new DataAccessException("Black team already filled");
+                    throw new DataAccessException("Team already filled");
                 }
             } catch (SQLException e) {
-                throw new DataAccessException(e.getMessage());
+                throw new DataAccessException("test" + e.getMessage());
             }
             ps.setString(1, username);
             ps.setInt(2, gameID);
@@ -94,10 +95,10 @@ public class DBGameDAO {
                     throw new DataAccessException("Failed to join black team");
                 }
             } catch (SQLException e) {
-                throw new DataAccessException(e.getMessage());
+                throw new DataAccessException("test1" + e.getMessage());
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException(e.getMessage());
         }
     }
 
