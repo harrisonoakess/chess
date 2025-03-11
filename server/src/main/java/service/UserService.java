@@ -5,6 +5,7 @@ import dataaccess.DataAccessException;
 import dataaccess.UserDAO;
 import dataaccess.datastorage.DBAuthDAO;
 import model.*;
+import org.eclipse.jetty.server.Authentication;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
@@ -41,18 +42,26 @@ public class UserService {
         return new RegisterResult(request.username(), userAuth.authToken());
     }
 
-    public LoginResult login(LoginRequest request) throws DataAccessException{
-        UserData loginUser = new UserData(request.username(), request.password(), null);
-        userDAO.loginUser(loginUser);
+    public LoginResult login(LoginRequest request) throws DataAccessException, SQLException {
+        UserData userCheck = userDAO.checkUser(request.username());
+        if (userCheck == null){
+            throw new DataAccessException("User does not exists");
+        }
+        if (!BCrypt.checkpw(request.password(), userCheck.password())){
+            throw new DataAccessException("Password does not match");
+        }
         AuthData userAuth = authDAO.createUserAuth(request.username());
         return new LoginResult(request.username(), userAuth.authToken());
     }
 
     public void logout(String authToken) throws DataAccessException{
-        userDAO.logoutUser(authToken);
+        if (!authDAO.checkUserAuth(authToken)){
+            throw new DataAccessException("User not logged in");
+        }
+        authDAO.deleteUserAuth(authToken);
     }
 
-    public void clearData(){
+    public void clearData() throws SQLException, DataAccessException {
         userDAO.clearUsers();
         authDAO.clearAuthTokens();
     }

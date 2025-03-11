@@ -50,32 +50,16 @@ public class DBUserDAO implements UserDAO {
             throw new DataAccessException(e.getMessage());
         }
     }
+    public void clearUsers() throws DataAccessException, SQLException {
+        String deleteUsers = "DELETE FROM users";
+        try (
+            var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(deleteUsers)) {
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+    }
 }
 
-
-//    @Override
-//    public void loginUser(UserData user) throws DataAccessException {
-//        if (!users.containsKey(user.username())){
-//            throw new DataAccessException("User does not exists");
-//        }
-//        if (!Objects.equals(user.password(), users.get(user.username()).password())){
-//            throw new DataAccessException("Password does not match");
-//        }
-//        String token = java.util.UUID.randomUUID().toString();
-//        new AuthData(token, users.get(user.username()).username());
-//    }
-//
-//    @Override
-//    public void logoutUser(String authToken) throws DataAccessException {
-//        if (!authDAO.checkUserAuth(authToken)){
-//            throw new DataAccessException("User not logged in");
-//        }
-//        authDAO.deleteUserAuth(authToken);
-//    }
-//
-//    public void clearUsers(){
-//        users.clear();
-//    }
-//}
-//
 
