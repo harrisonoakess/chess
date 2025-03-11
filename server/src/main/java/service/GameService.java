@@ -4,12 +4,10 @@ import chess.ChessGame;
 import dataaccess.AuthDAO;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBGameDAO;
-import model.CreateGameRequest;
 import model.CreateGameResult;
 import model.GameData;
 
-import javax.xml.crypto.Data;
-import java.util.HashMap;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,8 +20,8 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public CreateGameResult createGame(String gameName, String authToken) throws DataAccessException {
-        if (!authDAO.checkUserAuth(authToken)) {
+    public CreateGameResult createGame(String gameName, String authToken) throws DataAccessException, SQLException {
+        if (authDAO.checkUserAuth(authToken)) {
             throw new DataAccessException("User not logged in");
         }
         ChessGame newGame = new ChessGame();
@@ -31,8 +29,8 @@ public class GameService {
         return gameDAO.createNewGame(gameData);
     }
 
-    public void joinGame(String playerColor, String gameID, String authToken) throws DataAccessException {
-        if (!authDAO.checkUserAuth(authToken)) {
+    public void joinGame(String playerColor, String gameID, String authToken) throws DataAccessException, SQLException {
+        if (authDAO.checkUserAuth(authToken)) {
             throw new DataAccessException("User not logged in");
         }
         if (gameID == null){
@@ -51,8 +49,8 @@ public class GameService {
         }
     }
 
-    public Map<Integer, GameData> listGames(String authToken) throws DataAccessException {
-        if (!authDAO.checkUserAuth(authToken)) {
+    public Map<Integer, GameData> listGames(String authToken) throws DataAccessException, SQLException {
+        if (authDAO.checkUserAuth(authToken)) {
             throw new DataAccessException("User not logged in");
         }
         return gameDAO.listGames();

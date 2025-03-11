@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,11 +25,12 @@ public class GameServiceTests {
     private final String username = "fake_user";
 
     @BeforeEach
-    public void testReset() throws DataAccessException {
+    public void testReset() throws DataAccessException, SQLException {
         authDAO = new DBAuthDAO();
         gameDAO = new DBGameDAO(authDAO);
         gameService = new GameService(gameDAO, authDAO);
         String username = "fake_user";
+        String newAuth = java.util.UUID.randomUUID().toString();
         AuthData authData = authDAO.createUserAuth(username);
         authToken = authData.authToken();
     }

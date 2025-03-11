@@ -58,7 +58,7 @@ public class Server {
                     response.status(400);
                     return gson.toJson(new AddErrorMessage("Error: User already taken"));
                 }
-                if (Objects.equals(DataAccessException.getMessage(), "Error: already taken")){
+                if (Objects.equals(DataAccessException.getMessage(), "Error: User already exists")){
                     response.status(403);
                     return gson.toJson(new AddErrorMessage("Error: User already taken"));
                 }

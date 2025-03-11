@@ -31,7 +31,7 @@ public class CreateNewTables {
             """;
     private static final String CREATE_AUTH_TABLE =
             """
-            CREATE TABLE IF NOT EXISTS auth (
+            CREATE TABLE IF NOT EXISTS auths (
             username VARCHAR(100) PRIMARY KEY,
             authToken VARCHAR(225) NOT NULL
             )            

@@ -21,11 +21,12 @@ public class DBUserDAO implements UserDAO {
     public void createNewUser(UserData user) throws DataAccessException, SQLException {
         String userLine = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
         try (
-                var conn = DatabaseManager.getConnection();
-                var ps = conn.prepareStatement(userLine)) {
-            ps.setString(1, user.username());
-            ps.setString(2, user.password());
-            ps.setString(3, user.email());
+            var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(userLine)) {
+                ps.setString(1, user.username());
+                ps.setString(2, user.password());
+                ps.setString(3, user.email());
+                ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
@@ -36,7 +37,7 @@ public class DBUserDAO implements UserDAO {
         try (
             var conn = DatabaseManager.getConnection();
             var ps = conn.prepareStatement(getUsername)) {
-            ps.setString(1, username);
+                ps.setString(1, username);
             try (var rs = ps.executeQuery()) {
                 if (rs.next()) {
                     UserData user = new UserData(
@@ -55,7 +56,7 @@ public class DBUserDAO implements UserDAO {
         try (
             var conn = DatabaseManager.getConnection();
             var ps = conn.prepareStatement(deleteUsers)) {
-            ps.executeUpdate();
+                ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
