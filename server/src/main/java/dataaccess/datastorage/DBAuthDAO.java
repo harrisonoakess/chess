@@ -12,6 +12,7 @@ public class DBAuthDAO implements AuthDAO {
 
     @Override
     public AuthData createUserAuth(String username) throws DataAccessException {
+        String newAuth = "INSERT INTO "
         String newAuth = java.util.UUID.randomUUID().toString();
         AuthData userAuth = new AuthData(username, newAuth);
         authTokens.put(newAuth, userAuth);

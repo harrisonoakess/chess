@@ -13,7 +13,7 @@ public class CreateNewTables {
     private static final String CREATE_USER_TABLE =
             """
             CREATE TABLE IF NOT EXISTS users (
-            username varchar(100) PRIMARY KEY,
+            username VARCHAR(100) PRIMARY KEY,
             password VARCHAR(225) NOT NULL,
             email VARCHAR (100) NOT NULL
             )
@@ -29,6 +29,13 @@ public class CreateNewTables {
             game TEXT
             )
             """;
+    private static final String CREATE_AUTH_TABLE =
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+            username VARCHAR(100) PRIMARY KEY,
+            authToken VARCHAR(225) NOT NULL
+            )            
+            """;
 
     public static void initialize() throws DataAccessException {
         try (Connection conn = DatabaseManager.getConnection()) {
@@ -36,6 +43,9 @@ public class CreateNewTables {
                 ps.executeUpdate();
             }
             try (PreparedStatement ps = conn.prepareStatement(CREATE_GAME_TABLE)) {
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(CREATE_AUTH_TABLE)) {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {

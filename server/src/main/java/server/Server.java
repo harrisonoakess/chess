@@ -38,11 +38,6 @@ public class Server {
         registeredUserEndpoints();
         registeredGameEndpoints();
 
-        Spark.delete("/db", (request, response) -> {
-            userDAO.clearUsers();
-            response.status(200);
-            return "{}"; // needs to be a json
-        });
         //This line initializes the server and can be removed once you have a functioning endpoint
 //        Spark.init();
 
@@ -80,7 +75,7 @@ public class Server {
                 return gson.toJson(loginResult);
             } catch(DataAccessException dataAccessException){
                 if(Objects.equals(dataAccessException.getMessage(), "User does not exist")){
-                    response.status(200);
+                    response.status(401);
                     return gson.toJson(new AddErrorMessage("Error: user does not exist"));
                 }
                 if (Objects.equals(dataAccessException.getMessage(), "Password does not match")){
@@ -104,7 +99,7 @@ public class Server {
                 return gson.toJson(new AddErrorMessage("Error: " + e.getMessage()));
             }
         }));
-
+        // delete database
         Spark.delete("/db", ((request, response) -> {
             gameService.clearData();
             userService.clearData();
