@@ -53,7 +53,7 @@ public class UserService {
     }
 
     public void logout(String authToken) throws DataAccessException, SQLException {
-        if (authDAO.checkUserAuth(authToken)){
+        if (!authDAO.checkUserAuth(authToken)){
             throw new DataAccessException("User not logged in");
         }
         authDAO.deleteUserAuth(authToken);

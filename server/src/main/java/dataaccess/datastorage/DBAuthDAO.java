@@ -14,6 +14,15 @@ public class DBAuthDAO implements AuthDAO {
 
     @Override
     public AuthData createUserAuth(String username) throws DataAccessException, SQLException {
+        String deleteExisting = "DELETE FROM auths WHERE username = ?";
+        try (var conn = DatabaseManager.getConnection();
+             var ps = conn.prepareStatement(deleteExisting)) {
+            ps.setString(1, username);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
+        }
+
         String insertAuth = "INSERT INTO auths (username, authToken) VALUES (?, ?)";
         String newAuth = java.util.UUID.randomUUID().toString();
         try (
@@ -35,7 +44,7 @@ public class DBAuthDAO implements AuthDAO {
         try (
             var conn = DatabaseManager.getConnection();
             var ps = conn.prepareStatement(deleteAuth)) {
-                ps.setString(2, authToken);
+                ps.setString(1, authToken);
                 int rowsAffected = ps.executeUpdate();
                 if (rowsAffected == 0) {
                     throw new DataAccessException("User not authenticated");
@@ -54,9 +63,9 @@ public class DBAuthDAO implements AuthDAO {
                 ps.setString(1, authToken);
                 try (var rs = ps.executeQuery()) {
                     if (rs.next()) {
-                        return rs.getInt(1) <= 0;
+                        return rs.getInt(1) > 0;
                     }
-                    return true;
+                    return false;
                 }
         } catch (SQLException e){
             throw new DataAccessException(e.getMessage());
@@ -89,8 +98,6 @@ public class DBAuthDAO implements AuthDAO {
                 ps.executeUpdate();
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
-        } catch (DataAccessException e) {
-            throw new RuntimeException(e);
         }
     }
 }

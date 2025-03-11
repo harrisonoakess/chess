@@ -44,6 +44,7 @@ public class DBUserDAO implements UserDAO {
                             rs.getString("username"),
                             rs.getString("password"),
                             rs.getString("email"));
+                            return user;
                 }
                 return null;
             }
