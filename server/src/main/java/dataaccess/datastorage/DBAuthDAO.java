@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DBAuthDAO implements AuthDAO {
-    private final Map<String, AuthData> authTokens = new HashMap<>();
 
     @Override
     public AuthData createUserAuth(String username) throws DataAccessException, SQLException {
