@@ -20,24 +20,37 @@ public class DBUserDAO implements UserDAO {
     @Override
     public void createNewUser(UserData user) throws DataAccessException, SQLException {
         String userLine = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-        try(
-            var connection = DatabaseManager.getConnection();
-            var prepstat = connection.prepareStatement(userLine)) {
-            prepstat.setString(1, user.username());
-            prepstat.setString(2, user.password());
-            prepstat.setString(3, user.email());
+        try (
+                var conn = DatabaseManager.getConnection();
+                var ps = conn.prepareStatement(userLine)) {
+            ps.setString(1, user.username());
+            ps.setString(2, user.password());
+            ps.setString(3, user.email());
         } catch (SQLException e) {
             throw new DataAccessException(e.getMessage());
         }
     }
 
-    public UserData checkUser (String username) throws DataAccessException{
-        if (users.containsKey(username)){
-            return users.get(username);
-        }
-        return null;
+    public UserData checkUser(String username) throws DataAccessException, SQLException {
+        String getUsername = "SELECT username, password, email FROM users WHERE username = ?";
+        try (
+            var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(getUsername)) {
+            ps.setString(1, username);
+            try (var rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserData user = new UserData(
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("email"));
+                }
+                return null;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException(e.getMessage());
         }
     }
+}
 
 
 //    @Override
