@@ -19,20 +19,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
     private UserService userService;
-    private GameService gameService;
     private DBAuthDAO authDAO;
     private DBUserDAO userDAO;
-    private DBGameDAO gameDAO;
 
     @BeforeEach
-    public void setup() throws SQLException, DataAccessException {
+    public void userSetup() throws SQLException, DataAccessException {
         authDAO = new DBAuthDAO();
         userDAO = new DBUserDAO(authDAO);
-        gameDAO = new DBGameDAO();
         userService = new UserService(userDAO, authDAO);
-        gameService = new GameService(gameDAO, authDAO);
         userService.clearData();
-        gameService.clearData();
     }
 
     @Test

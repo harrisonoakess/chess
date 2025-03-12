@@ -53,6 +53,4 @@ public class SQLUserTests {
 
         assertNull(userDAO.checkUser("fake_username"));
     }
-
-
 }

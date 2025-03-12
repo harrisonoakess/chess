@@ -4,7 +4,6 @@ import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBGameDAO;
 import dataaccess.datastorage.DBUserDAO;
-import model.AuthData;
 import model.CreateGameResult;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;
@@ -18,20 +17,15 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTests {
-    private UserService userService;
     private GameService gameService;
     private DBAuthDAO authDAO;
-    private DBUserDAO userDAO;
     private DBGameDAO gameDAO;
 
     @BeforeEach
-    public void setup() throws SQLException, DataAccessException {
+    public void gameSetup() throws SQLException, DataAccessException {
         authDAO = new DBAuthDAO();
-        userDAO = new DBUserDAO(authDAO);
         gameDAO = new DBGameDAO();
-        userService = new UserService(userDAO, authDAO);
         gameService = new GameService(gameDAO, authDAO);
-        userService.clearData();
         gameService.clearData();
     }
 
