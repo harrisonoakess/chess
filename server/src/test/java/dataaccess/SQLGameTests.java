@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.util.Map;
 
@@ -45,6 +46,20 @@ public class SQLGameTests {
         Map<Integer, GameData> games = gameDAO.listGames();
 
         Assertions.assertEquals("game1", games.get(result.gameID()).gameName());
+    }
+
+    @Test
+    @DisplayName("Create game with null game name")
+    public void testCreateGamefail() throws DataAccessException, SQLException {
+        GameData game = new GameData(0,
+                null,
+                null,
+                null,
+                new ChessGame());
+        DataAccessException e = assertThrows(DataAccessException.class, () ->
+                gameDAO.createNewGame(game));
+        Assertions.assertTrue(e.getMessage().contains("Column 'gameName' cannot be null"));
+
     }
 
     @Test
