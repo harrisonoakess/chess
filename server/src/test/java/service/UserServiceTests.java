@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
+import dataaccess.datastorage.DBGameDAO;
 import dataaccess.datastorage.DBUserDAO;
 import model.LoginRequest;
 import model.LoginResult;
@@ -18,15 +19,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
     private UserService userService;
+    private GameService gameService;
     private DBAuthDAO authDAO;
+    private DBUserDAO userDAO;
+    private DBGameDAO gameDAO;
 
     @BeforeEach
-    public void testReset() throws SQLException, DataAccessException {
+    public void setup() throws SQLException, DataAccessException {
         authDAO = new DBAuthDAO();
-        DBUserDAO memoryUserDAO = new DBUserDAO(authDAO);
-        userService = new UserService(memoryUserDAO, authDAO);
+        userDAO = new DBUserDAO(authDAO);
+        gameDAO = new DBGameDAO();
+        userService = new UserService(userDAO, authDAO);
+        gameService = new GameService(gameDAO, authDAO);
         userService.clearData();
-
+        gameService.clearData();
     }
 
     @Test
@@ -48,7 +54,6 @@ public class UserServiceTests {
         });
         assertEquals("Error: User already exists", exception.getMessage());
     }
-
     @Test
     @DisplayName("Password left blank")
     public void testBlankPassword() throws DataAccessException{
@@ -59,7 +64,6 @@ public class UserServiceTests {
         });
         assertEquals("Password cannot be blank", exception.getMessage());
     }
-
     @Test
     @DisplayName("Successful login")
     public void testSuccessfullyLogin() throws DataAccessException, SQLException {
@@ -84,7 +88,6 @@ public class UserServiceTests {
         });
         assertEquals("User does not exist", exception.getMessage());
     }
-
     @Test
     @DisplayName("Incorrect password")
     public void testIncorrectPassword() throws DataAccessException, SQLException {
@@ -98,7 +101,6 @@ public class UserServiceTests {
         });
         assertEquals("Password does not match", exception.getMessage());
     }
-
     @Test
     @DisplayName("successful logout")
     public void testLogout() throws DataAccessException, SQLException {

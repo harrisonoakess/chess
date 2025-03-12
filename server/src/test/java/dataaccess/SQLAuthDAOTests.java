@@ -1,7 +1,7 @@
 package dataaccess;
 
-import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
+import dataaccess.datastorage.DBGameDAO;
 import dataaccess.datastorage.DBUserDAO;
 import model.AuthData;
 import org.junit.jupiter.api.Assertions;
@@ -9,25 +9,30 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import javax.xml.crypto.Data;
-
 import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class SQLAuthTests {
-    private DBAuthDAO authentication;
+public class SQLAuthDAOTests {
+    private DBAuthDAO authDAO;
+    private DBUserDAO userDAO;
+    private DBGameDAO gameDAO;
 
     @BeforeEach
-    public void testReset(){
-        authentication = new DBAuthDAO();
+    public void testReset() throws DataAccessException, SQLException {
+        authDAO = new DBAuthDAO();
+        userDAO = new DBUserDAO(authDAO);
+        gameDAO = new DBGameDAO();
 
+        authDAO.clearAuths();
+        userDAO.clearUsers();
+        gameDAO.clearGames();
     }
 
     @Test
     @DisplayName("Create new auth token")
     public void testCreateUserAuth() throws DataAccessException, SQLException {
-        AuthData authData = authentication.createUserAuth("fake_username");
+        AuthData authData = authDAO.createUserAuth("fake_username");
 
         Assertions.assertEquals("fake_username", authData.username());
         Assertions.assertNotNull(authData.authToken());
@@ -37,18 +42,18 @@ public class SQLAuthTests {
     @Test
     @DisplayName("Delete auth token")
     public void testDeleteUserAuth() throws DataAccessException, SQLException {
-        AuthData authData = authentication.createUserAuth("fake_username");
-        authentication.deleteUserAuth(authData.authToken());
+        AuthData authData = authDAO.createUserAuth("fake_username");
+        authDAO.deleteUserAuth(authData.authToken());
 
-        Assertions.assertFalse(authentication.checkUserAuth(authData.authToken()));
+        Assertions.assertFalse(authDAO.checkUserAuth(authData.authToken()));
     }
 
     @Test
     @DisplayName("auth token does not exist")
     public void testAuthNotFound() throws Exception{
-        AuthData authData = authentication.createUserAuth("fake_username");
+        AuthData authData = authDAO.createUserAuth("fake_username");
         Exception exception = assertThrows(Exception.class, () -> {
-            authentication.deleteUserAuth("fake auth");
+            authDAO.deleteUserAuth("fake auth");
         });
 
         Assertions.assertEquals("User not authenticated", exception.getMessage());
