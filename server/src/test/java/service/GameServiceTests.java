@@ -33,6 +33,7 @@ public class GameServiceTests {
         String newAuth = java.util.UUID.randomUUID().toString();
         AuthData authData = authDAO.createUserAuth(username);
         authToken = authData.authToken();
+        gameService.clearData();
     }
 
     @Test

@@ -21,6 +21,7 @@ public class AuthTests {
     @BeforeEach
     public void testReset(){
         authentication = new DBAuthDAO();
+
     }
 
     @Test
