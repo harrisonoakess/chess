@@ -14,8 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UserServiceTests {
     private UserService userService;
@@ -100,6 +99,17 @@ public class UserServiceTests {
         assertEquals("Password does not match", exception.getMessage());
     }
 
+    @Test
+    @DisplayName("successful logout")
+    public void testLogout() throws DataAccessException, SQLException {
+        RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
+        userService.register(registerRequest);
 
+        LoginRequest loginRequest = new LoginRequest("fake_username", "fake_password");
+        LoginResult loginResult = userService.login(loginRequest);
+
+        userService.logout(loginResult.authToken());
+        assertFalse(authDAO.checkUserAuth(loginResult.authToken()));
+    }
 }
 
