@@ -1,5 +1,6 @@
 package dataaccess.datastorage;
 
+import chess.ChessGame;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
@@ -12,13 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DBGameDAO {
-    private final Map<Integer, GameData> games = new HashMap<>();
-    private final DBAuthDAO authDAO;
-    private int nextGameID = 1;
 
-    public DBGameDAO(DBAuthDAO authDAO) {
-        this.authDAO = authDAO;
-    }
 
     public CreateGameResult createNewGame(GameData gameInfo) throws DataAccessException {
         String insertGame = "INSERT INTO games (whiteUsername, blackUsername, gameName, game) VALUES (?, ?, ?, ?)";
@@ -102,8 +97,29 @@ public class DBGameDAO {
         }
     }
 
-    public Map<Integer, GameData> listGames() throws DataAccessException {
-        return new HashMap<>(games);
+    public Map<Integer, GameData> listGames() throws DataAccessException, SQLException {
+        Map<Integer, GameData> games = new HashMap<>();
+        String getGames = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
+        try (
+            var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(getGames)){
+
+            try (var rs = ps.executeQuery()) {
+                while (rs.next()){
+                    int gameID = rs.getInt("gameID");
+                    String whiteUsername = rs.getString("whiteUsername");
+                    String blackUsername = rs.getString("blackUsername");
+                    String gameName = rs.getString("gameName");
+                    String gameJson = rs.getString("game");
+                    ChessGame gameConverted = new Gson().fromJson(gameJson, ChessGame.class);
+                    GameData game = new GameData(gameID, whiteUsername, blackUsername, gameName, gameConverted);
+                    games.put(gameID, game);
+                }
+                return games;
+            } catch (SQLException e){
+                throw new DataAccessException(e.getMessage());
+            }
+        }
     }
     public void clearGames() throws DataAccessException {
         String deleteGames = "DELETE FROM games";

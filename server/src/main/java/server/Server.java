@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class Server {
     private final DBAuthDAO authDAO = new DBAuthDAO();
-    private final DBGameDAO gameDAO = new DBGameDAO(authDAO);
+    private final DBGameDAO gameDAO = new DBGameDAO();
     private final DBUserDAO userDAO = new DBUserDAO(authDAO);
     private final UserService userService = new UserService(userDAO, authDAO);
     private final GameService gameService = new GameService(gameDAO, authDAO);

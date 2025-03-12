@@ -13,14 +13,14 @@ public class DBAuthDAO implements AuthDAO {
 
     @Override
     public AuthData createUserAuth(String username) throws DataAccessException, SQLException {
-        String deleteExisting = "DELETE FROM auths WHERE username = ?";
-        try (var conn = DatabaseManager.getConnection();
-             var ps = conn.prepareStatement(deleteExisting)) {
-            ps.setString(1, username);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
-        }
+//        String deleteExisting = "DELETE FROM auths WHERE username = ?";
+//        try (var conn = DatabaseManager.getConnection();
+//             var ps = conn.prepareStatement(deleteExisting)) {
+//            ps.setString(1, username);
+//            ps.executeUpdate();
+//        } catch (SQLException e) {
+//            throw new DataAccessException(e.getMessage());
+//        }
 
         String insertAuth = "INSERT INTO auths (username, authToken) VALUES (?, ?)";
         String newAuth = java.util.UUID.randomUUID().toString();

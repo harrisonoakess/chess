@@ -34,6 +34,7 @@ public class CreateNewTables {
             CREATE TABLE IF NOT EXISTS auths (
             authToken VARCHAR(225) PRIMARY KEY,
             username VARCHAR(100) NOT NULL
+            
             )            
             """;
 

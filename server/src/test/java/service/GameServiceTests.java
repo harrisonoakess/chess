@@ -27,7 +27,7 @@ public class GameServiceTests {
     @BeforeEach
     public void testReset() throws DataAccessException, SQLException {
         authDAO = new DBAuthDAO();
-        gameDAO = new DBGameDAO(authDAO);
+        gameDAO = new DBGameDAO();
         gameService = new GameService(gameDAO, authDAO);
         String username = "fake_user";
         String newAuth = java.util.UUID.randomUUID().toString();
