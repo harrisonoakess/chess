@@ -39,6 +39,17 @@ public class SQLUserTests {
         Assertions.assertEquals("fake_username", returned.username());
     }
     @Test
+    @DisplayName("User already exists")
+    public void testCreateUserFail() throws DataAccessException, SQLException {
+        UserData user = new UserData("fake_username", "fake_password", "email@fake.gov");
+        userDAO.createNewUser(user);
+
+        DataAccessException e = assertThrows(DataAccessException.class, () ->
+            userDAO.createNewUser(user));
+            Assertions.assertTrue(e.getMessage().contains("Duplicate entry"));
+        }
+
+    @Test
     @DisplayName("User does not exsist")
     public void testUserDoesNotExist() throws DataAccessException, SQLException {
         assertNull(userDAO.checkUser("fake_username"));
@@ -52,5 +63,12 @@ public class SQLUserTests {
         userDAO.clearUsers();
 
         assertNull(userDAO.checkUser("fake_username"));
+    }
+    @Test
+    @DisplayName("Create user with null username fails")
+    public void testCreateUserNullUsername() {
+        UserData user = new UserData(null, "fake_password", "user@example.com");
+        DataAccessException exception = assertThrows(DataAccessException.class, () -> userDAO.createNewUser(user));
+        assertTrue(exception.getMessage().contains("Column 'username' cannot be null"));
     }
 }
