@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import javax.xml.crypto.Data;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AuthTests {
@@ -23,7 +25,7 @@ public class AuthTests {
 
     @Test
     @DisplayName("Create new auth token")
-    public void testCreateUserAuth() throws DataAccessException{
+    public void testCreateUserAuth() throws DataAccessException, SQLException {
         AuthData authData = authentication.createUserAuth("fake_username");
 
         Assertions.assertEquals("fake_username", authData.username());
@@ -33,7 +35,7 @@ public class AuthTests {
 
     @Test
     @DisplayName("Delete auth token")
-    public void testDeleteUserAuth() throws DataAccessException{
+    public void testDeleteUserAuth() throws DataAccessException, SQLException {
         AuthData authData = authentication.createUserAuth("fake_username");
         authentication.deleteUserAuth(authData.authToken());
 

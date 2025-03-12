@@ -12,6 +12,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -20,16 +22,17 @@ public class UserServiceTests {
     private DBAuthDAO authDAO;
 
     @BeforeEach
-    public void testReset(){
+    public void testReset() throws SQLException, DataAccessException {
         authDAO = new DBAuthDAO();
         DBUserDAO memoryUserDAO = new DBUserDAO(authDAO);
         userService = new UserService(memoryUserDAO, authDAO);
+        userService.clearData();
 
     }
 
     @Test
     @DisplayName("Account added successfully")
-    public void testRegisterSuccess() throws DataAccessException {
+    public void testRegisterSuccess() throws DataAccessException, SQLException {
         RegisterRequest request = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
         RegisterResult result = userService.register(request);
 
@@ -37,14 +40,14 @@ public class UserServiceTests {
     }
     @Test
     @DisplayName("User already exists")
-    public void testUserAlreadyExists() throws DataAccessException{
+    public void testUserAlreadyExists() throws DataAccessException, SQLException {
         RegisterRequest request = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
         userService.register(request);
 
         DataAccessException exception = assertThrows(DataAccessException.class, () -> {
             userService.register(request);
         });
-        assertEquals("Error: already taken", exception.getMessage());
+        assertEquals("Error: User already exists", exception.getMessage());
     }
 
     @Test
@@ -60,7 +63,7 @@ public class UserServiceTests {
 
     @Test
     @DisplayName("Successful login")
-    public void testSuccessfullyLogin() throws DataAccessException{
+    public void testSuccessfullyLogin() throws DataAccessException, SQLException {
         RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
         userService.register(registerRequest);
 
@@ -71,7 +74,7 @@ public class UserServiceTests {
     }
     @Test
     @DisplayName("User does not exist")
-    public void testUsernameNotFound() throws DataAccessException{
+    public void testUsernameNotFound() throws DataAccessException, SQLException {
         RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
         userService.register(registerRequest);
 
@@ -80,12 +83,12 @@ public class UserServiceTests {
         DataAccessException exception = assertThrows(DataAccessException.class, () -> {
             userService.login(loginRequest);
         });
-        assertEquals("User does not exists", exception.getMessage());
+        assertEquals("User does not exist", exception.getMessage());
     }
 
     @Test
     @DisplayName("Incorrect password")
-    public void testIncorrectPassword() throws DataAccessException{
+    public void testIncorrectPassword() throws DataAccessException, SQLException {
         RegisterRequest registerRequest = new RegisterRequest("fake_username", "fake_password", "email@fake.gov");
         userService.register(registerRequest);
 
