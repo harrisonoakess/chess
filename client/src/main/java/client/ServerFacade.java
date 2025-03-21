@@ -66,11 +66,20 @@ public class ServerFacade {
             throw new ResponseException(status, "other failure: " + status);
         }
     }
+    private static <T> T readBody(HttpURLConnection http, Class<T> responseClass) throws IOException {
+        T response = null;
+        if (http.getContentLength() < 0) {
+            try (InputStream respBody = http.getInputStream()) {
+                InputStreamReader reader = new InputStreamReader(respBody);
+                if (responseClass != null) {
+                    response = new Gson().fromJson(reader, responseClass);
+                }
+            }
+        }
+        return response;
+    }
 
-
-
-
-
-
-
+    private boolean isSuccessful(int status) {
+        return status / 100 == 2;
+    }
 }
