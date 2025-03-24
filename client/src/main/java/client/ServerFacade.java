@@ -37,7 +37,7 @@ public class ServerFacade {
         var path = "/session";
         makeRequest("DELETE", path, null, null, authToken );
     }
-//test
+
     public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {
         var path = "/game";
         CreateGameRequest request = new CreateGameRequest(gameName);
