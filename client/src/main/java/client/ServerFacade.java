@@ -33,14 +33,20 @@ public class ServerFacade {
     }
 
     public void logout(String authToken) throws ResponseException {
-        var path = "/db";
+        var path = "/session";
         makeRequest("DELETE", path, null, null, authToken );
     }
 
     public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {
         var path = "/game";
-        CreateGameRequest request = new CreateGameRequest(authToken, gameName);
+        CreateGameRequest request = new CreateGameRequest(gameName);
         return makeRequest("POST", path, request, CreateGameResult.class, authToken);
+    }
+
+    public JoinGameRequest joinGame(String playerColor, String gameID, String authToken) throws ResponseException {
+        var path = "/game";
+        JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+        return makeRequest("PUT", path, request, JoinGameRequest.class, authToken);
     }
 
     public ListAllGamesResult listAllGames(String authToken) throws ResponseException {
@@ -48,6 +54,10 @@ public class ServerFacade {
         return makeRequest("GET", path, null, ListAllGamesResult.class, authToken);
     }
 
+public void clearData() throws ResponseException {
+        var path = "/db";
+        makeRequest("DELETE", path, null, null, null);
+}
 
 
 
