@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.*;
+import java.util.Locale;
 
 
 public class ServerFacade {
@@ -43,18 +44,18 @@ public class ServerFacade {
         return makeRequest("POST", path, request, CreateGameResult.class, authToken);
     }
 
-    public JoinGameRequest joinGame(String playerColor, String gameID, String authToken) throws ResponseException {
+    public void joinGame(String playerColor, String gameID, String authToken) throws ResponseException {
         var path = "/game";
         JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
-        return makeRequest("PUT", path, request, JoinGameRequest.class, authToken);
+        makeRequest("PUT", path, request, JoinGameRequest.class, authToken);
     }
 
-    public ListAllGamesResult listAllGames(String authToken) throws ResponseException {
+    public ListAllGamesResult listGames(String authToken) throws ResponseException {
         var path = "/game";
         return makeRequest("GET", path, null, ListAllGamesResult.class, authToken);
     }
 
-public void clearData() throws ResponseException {
+public void clear() throws ResponseException {
         var path = "/db";
         makeRequest("DELETE", path, null, null, null);
 }
@@ -66,7 +67,11 @@ public void clearData() throws ResponseException {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
             http.setRequestMethod(method);
-            http.setDoOutput(true);
+            http.setDoOutput(method.equals("POST") || method.equals("PUT"));
+//          This statement adds the header with authtoken because that's how server reads it in.
+            if (authToken != null) {
+                http.addRequestProperty("Authorization", authToken);
+            }
 
             writeBody(request, http);
             http.connect();
