@@ -40,7 +40,7 @@ public class ServerFacade {
 
     public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {
         var path = "/game";
-        CreateGameRequest request = new CreateGameRequest(gameName);
+        CreateGameRequest request = new CreateGameRequest(authToken, gameName);
         return makeRequest("POST", path, request, CreateGameResult.class, authToken);
     }
 
