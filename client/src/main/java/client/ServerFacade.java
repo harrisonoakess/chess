@@ -1,8 +1,7 @@
 package client;
 
 import exception.ResponseException;
-import model.RegisterRequest;
-import model.RegisterResult;
+import model.*;
 import com.google.gson.Gson;
 
 import java.io.*;
@@ -23,10 +22,37 @@ public class ServerFacade {
         var path = "/user";
         // this is what will be sent into the endpoint
         RegisterRequest request = new RegisterRequest(username, password, email);
-        return makeRequest("POST", path, request, RegisterResult.class);
+        return makeRequest("POST", path, request, RegisterResult.class, null);
     }
 
-    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass) throws ResponseException {
+    public LoginResult login(String username, String password) throws ResponseException {
+        var path = "/session";
+        // this is what will be sent into the endpoint
+        LoginRequest request = new LoginRequest(username, password);
+        return makeRequest("POST", path, request, LoginResult.class, null);
+    }
+
+    public void logout(String authToken) throws ResponseException {
+        var path = "/db";
+        makeRequest("DELETE", path, null, null, authToken );
+    }
+
+    public CreateGameResult createGame(String authToken, String gameName) throws ResponseException {
+        var path = "/game";
+        CreateGameRequest request = new CreateGameRequest(authToken, gameName);
+        return makeRequest("POST", path, request, CreateGameResult.class, authToken);
+    }
+
+    public void joinGame(String playerColor, String gameID, String authToken) throws ResponseException {
+        var path = "/game";
+        JoinGameRequest request = new JoinGameRequest(authToken, gameID);
+        makeRequest("PUT", path, request, null, authToken);
+    }
+
+
+
+
+    private <T> T makeRequest(String method, String path, Object request, Class<T> responseClass, String authToken) throws ResponseException {
         try {
             URL url = (new URI(serverUrl + path)).toURL();
             HttpURLConnection http = (HttpURLConnection) url.openConnection();
