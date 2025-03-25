@@ -158,7 +158,6 @@ public class ChessClient {
         }
     }
     private String makeBoard(ChessBoard board, String playerColor) {
-        String color;
         StringBuilder stringBoard = new StringBuilder();
         if ("WHITE".equals(playerColor)) {
             // White perspective
@@ -166,11 +165,7 @@ public class ChessClient {
             for (int row = 8; row >= 1; row--) {
                 stringBoard.append(row).append(" ");
                 for (int col = 1; col <= 8; col++) {
-                    if ((row + col) % 2 == 0) {
-                      color = SET_BG_COLOR_DARK_GREY;
-                    }else {
-                        color = SET_BG_COLOR_LIGHT_GREY;
-                    }
+                    String color = (row + col) % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                     stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
                 }
@@ -183,11 +178,7 @@ public class ChessClient {
             for (int row = 1; row <= 8; row++) {
                 stringBoard.append(row).append(" ");
                 for (int col = 8; col >= 1; col--) {
-                    if ((row + col) % 2 == 0) {
-                        color = SET_BG_COLOR_DARK_GREY;
-                    }else {
-                        color = SET_BG_COLOR_LIGHT_GREY;
-                    }
+                    String color = (row + col) % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                     stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
                 }
