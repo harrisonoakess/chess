@@ -199,36 +199,61 @@ public class ChessClient {
     }
 
     private String getPieceSymbol(ChessPiece piece) {
-        if (piece == null) return EMPTY;
+        if (piece == null) {
+            return EMPTY;
+        }
 
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) return WHITE_KING;
-            else return BLACK_KING;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return WHITE_KING;
+            }
+            else {
+                return BLACK_KING;}
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.QUEEN) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) return WHITE_QUEEN;
-            else return BLACK_QUEEN;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return WHITE_QUEEN;
+            }
+            else {
+                return BLACK_QUEEN;
+            }
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.BISHOP) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) return WHITE_BISHOP;
-            else return BLACK_BISHOP;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return WHITE_BISHOP;
+            }
+            else {
+                return BLACK_BISHOP;
+            }
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.KNIGHT) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) return WHITE_KNIGHT;
-            else return BLACK_KNIGHT;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return WHITE_KNIGHT;
+            }
+            else {
+                return BLACK_KNIGHT;
+            }
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.ROOK) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) return WHITE_ROOK;
-            else return BLACK_ROOK;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return WHITE_ROOK;
+            }
+            else {
+                return BLACK_ROOK;
+            }
         }
 
         if (piece.getPieceType() == ChessPiece.PieceType.PAWN) {
-            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) return WHITE_PAWN;
-            else return BLACK_PAWN;
+            if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+                return WHITE_PAWN;
+            }
+            else {
+                return BLACK_PAWN;
+            }
         }
         return null;
     }
