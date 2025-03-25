@@ -2,10 +2,12 @@ package ui;
 
 import client.ServerFacade;
 import exception.ResponseException;
+import model.CreateGameResult;
 import model.LoginResult;
 import model.RegisterResult;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class ChessClient {
     private State state = State.SIGNEDOUT;
@@ -13,7 +15,7 @@ public class ChessClient {
     private final String serverUrl;
     private String authToken = null;
 
-    public ChessClient(ServerFacade server, String serverUrl) {
+    public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
     }
@@ -43,7 +45,8 @@ public class ChessClient {
         return switch (cmd) {                                                           // a different amount of params each time
             case "create game" -> createGame(params);
             case "join game" -> joinGame(params);
-            case "list games" -> listGames(params);
+//            case "list games" -> listGames(params);
+            case "observe game" -> observeGame(params);
             case "logout" -> logout(params);
             case "quit" -> "quit";
             default -> help();
@@ -77,16 +80,43 @@ public class ChessClient {
         state = State.SIGNEDOUT;
         return "logged out";
     }
+    public String createGame(String... params) throws ResponseException {
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new ResponseException(400, "Expected: create <Game name>");
+        }
+        CreateGameResult game = server.createGame(authToken, params[0]);
+        return String.format("Created game: %s", game.gameID());
+    }
+    public String joinGame(String... params) throws ResponseException{
+        assertSignedIn();
+        if (params.length != 2) {
+            throw new ResponseException(400, "Expected: create <Game name>");
+        }
+        String color = params[1];
+        if (!Objects.equals(color, "WHITE") && !Objects.equals(color, "BLACK")) {
+            throw new ResponseException(400, "Color must be WHITE or BLACK");
+        }
+        server.joinGame(color, params[0], authToken);
+        return "Joined game " + params[0];
+    }
 
-
-
-
-
-
-
-
-
-
+    public String observeGame(String... params) throws ResponseException {
+        assertSignedIn();
+        if (params.length != 1) {
+            throw new ResponseException(400, "Expected: observe <game ID>");
+        }
+        server.joinGame(null, params[0], authToken);
+        return String.format("Observing game: %s", params[0]);
+    }
+//    public String listGames(String... params) throws ResponseException {
+//        assertSignedIn();
+//        ListAllGamesResult games = server.listGames(authToken);
+//        if (games.games().length == 0) {
+//            return "No games available.";
+//        }
+//        StringBuilder result = new StringBuilder("Games:")
+//    }
 
     public String help() {
         if (state == State.SIGNEDIN) {
