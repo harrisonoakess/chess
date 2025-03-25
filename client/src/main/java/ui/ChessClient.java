@@ -55,7 +55,7 @@ public class ChessClient {
 
     public String register(String... params) throws ResponseException {
         if (params.length != 3) {
-            throw new ResponseException(400, "Expected: register <username> <password? <email>");
+            throw new ResponseException(400, "Expected: register <username> <password> <email>");
         }
         RegisterResult result = server.register(params[0], params[1], params[2]);
         authToken = result.authToken();
@@ -93,9 +93,16 @@ public class ChessClient {
         if (params.length < 1 || params.length > 2) {
             throw new ResponseException(400, "Expected: join <game ID> [WHITE|BLACK]");
         }
-        String color = params[1];
-        if (!Objects.equals(color, "WHITE") && !Objects.equals(color, "BLACK")) {
+        String color;
+        if (params.length == 2) {
+            color = params[1].toUpperCase();
+        }else {
+            color = null;
+        }
+
+        if (!Objects.equals(color, "WHITE") && !Objects.equals(color, "BLACK") && !Objects.equals(color, null)) {
             throw new ResponseException(400, "Color must be WHITE or BLACK");
+
         }
         server.joinGame(color, params[0], authToken);
         return "Joined game " + params[0];
@@ -121,7 +128,7 @@ public class ChessClient {
     public String help() {
         if (state == State.SIGNEDOUT) {
             return """
-                    register <username> <password? <email>
+                    register <username> <password> <email>
                     login <username> <password>
                     help
                     quit
@@ -141,5 +148,9 @@ public class ChessClient {
         if (state == State.SIGNEDOUT) {
             throw new ResponseException(400, "You must sign in");
         }
+    }
+
+    public boolean isLoggedIn() {
+        return authToken == null;
     }
 }

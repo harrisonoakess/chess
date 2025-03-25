@@ -12,7 +12,7 @@ public class Repl {
     }
 
     public void run() {
-        System.out.println("\uD83D\uDC36 Welcome to my chess game. Sign in to start.");
+        System.out.println(WHITE_KING + "Welcome to my chess game. Sign in to start.");
         System.out.print(client.help());
 
         Scanner scanner = new Scanner(System.in);
@@ -22,7 +22,7 @@ public class Repl {
             String line = scanner.nextLine();
 
             try {
-                result = eval(line);
+                result = client.eval(line);
                 System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
@@ -34,7 +34,7 @@ public class Repl {
 
     private void printPrompt() {
         String logState;
-        if (authToken == null) {
+        if (client.isLoggedIn()) {
             logState = "[Logged out]";
         } else {
             logState = "[Logged in]";
@@ -46,23 +46,6 @@ public class Repl {
     public void setAuthToken(String token) {
         this.authToken = token;
     }
-
-    public String eval(String input) throws ResponseException {
-        String result = client.eval(input);
-        if (input.startsWith("login") || input.startsWith("register")) {
-            try {
-                authToken = client.eval(input).contains("Logged in") || client.eval(input).contains("Registered") ? "loggedIn" : null;
-            } catch (ResponseException ignored) {
-                authToken = null;
-            }
-        } else if (input.startsWith("logout")) {
-            authToken = null;
-        }
-        return result;
-    }
-
-
-
 }
 
 
