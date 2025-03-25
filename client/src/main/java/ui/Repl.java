@@ -1,8 +1,7 @@
 package ui;
 
-import org.eclipse.jetty.util.Scanner;
-
-import static java.awt.Color.BLUE;
+import exception.ResponseException;
+import java.util.Scanner;
 import static ui.EscapeSequences.*;
 
 public class Repl {
@@ -10,10 +9,6 @@ public class Repl {
 
     public Repl(String serverURL) {
         client = new ChessClient(serverURL);
-    }
-    private String authToken = null;
-    public void setAuthToken(String token) {
-        this.authToken = token;
     }
 
     public void run() {
@@ -27,8 +22,8 @@ public class Repl {
             String line = scanner.nextLine();
 
             try {
-                result = client.eval(line);
-                System.out.print(BLUE + result);
+                result = eval(line);
+                System.out.print(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
                 System.out.print(msg);
@@ -37,12 +32,38 @@ public class Repl {
         System.out.println("Goodbye");
     }
 
-
-
-
-
-
     private void printPrompt() {
-        System.out.print("\n" + RESET_TEXT_COLOR + SET_TEXT_COLOR_WHITE + "Please type a command" + SET_TEXT_COLOR_GREEN);    }
+        String logState;
+        if (authToken == null) {
+            logState = "[Logged out]";
+        } else {
+            logState = "[Logged in]";
+        }
+        System.out.print("\n" + RESET_TEXT_COLOR + SET_TEXT_COLOR_WHITE + logState + SET_TEXT_COLOR_GREEN);
+    }
+
+    private String authToken = null;
+    public void setAuthToken(String token) {
+        this.authToken = token;
+    }
+
+    public String eval(String input) throws ResponseException {
+        String result = client.eval(input);
+        if (input.startsWith("login") || input.startsWith("register")) {
+            try {
+                authToken = client.eval(input).contains("Logged in") || client.eval(input).contains("Registered") ? "loggedIn" : null;
+            } catch (ResponseException ignored) {
+                authToken = null;
+            }
+        } else if (input.startsWith("logout")) {
+            authToken = null;
+        }
+        return result;
+    }
+
+
+
 }
+
+
 

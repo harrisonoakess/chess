@@ -43,10 +43,10 @@ public class ChessClient {
 
     public String evalLoggedIn(String cmd, String... params) throws ResponseException{ // the three periods means it can take
         return switch (cmd) {                                                           // a different amount of params each time
-            case "create game" -> createGame(params);
-            case "join game" -> joinGame(params);
+            case "create" -> createGame(params);
+            case "join" -> joinGame(params);
 //            case "list games" -> listGames(params);
-            case "observe game" -> observeGame(params);
+            case "observe" -> observeGame(params);
             case "logout" -> logout(params);
             case "quit" -> "quit";
             default -> help();
@@ -90,8 +90,8 @@ public class ChessClient {
     }
     public String joinGame(String... params) throws ResponseException{
         assertSignedIn();
-        if (params.length != 2) {
-            throw new ResponseException(400, "Expected: create <Game name>");
+        if (params.length < 1 || params.length > 2) {
+            throw new ResponseException(400, "Expected: join <game ID> [WHITE|BLACK]");
         }
         String color = params[1];
         if (!Objects.equals(color, "WHITE") && !Objects.equals(color, "BLACK")) {
@@ -119,7 +119,7 @@ public class ChessClient {
 //    }
 
     public String help() {
-        if (state == State.SIGNEDIN) {
+        if (state == State.SIGNEDOUT) {
             return """
                     register <username> <password? <email>
                     login <username> <password>
