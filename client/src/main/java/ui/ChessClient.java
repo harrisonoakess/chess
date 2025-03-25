@@ -165,7 +165,7 @@ public class ChessClient {
             for (int row = 8; row >= 1; row--) {
                 stringBoard.append(row).append(" ");
                 for (int col = 1; col <= 8; col++) {
-                    String color = (row + col) % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
+                    String color = getColor(row,col);
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                     stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
                 }
@@ -178,7 +178,7 @@ public class ChessClient {
             for (int row = 1; row <= 8; row++) {
                 stringBoard.append(row).append(" ");
                 for (int col = 8; col >= 1; col--) {
-                    String color = (row + col) % 2 == 0 ? SET_BG_COLOR_DARK_GREY : SET_BG_COLOR_LIGHT_GREY;
+                    String color = getColor(row,col);
                     ChessPiece piece = board.getPiece(new ChessPosition(row, col));
                     stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
                 }
@@ -187,6 +187,16 @@ public class ChessClient {
             stringBoard.append("   h   g   f  e   d   c  b  a\n");
         }
         return stringBoard.toString();
+    }
+
+    private String getColor(int row, int col) {
+        String color;
+        if ((row + col) % 2 == 0) {
+            color = SET_BG_COLOR_DARK_GREY;
+        }else {
+            color = SET_BG_COLOR_LIGHT_GREY;
+        }
+        return color;
     }
 
     private String getPieceSymbol(ChessPiece piece) {
