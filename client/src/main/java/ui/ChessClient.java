@@ -67,7 +67,12 @@ public class ChessClient {
             state = State.SIGNEDIN;
             return String.format("Registered as %s", result.username());
         } catch (ResponseException e) {
-            return e.getMessage();
+            return switch (e.statusCode()) {
+                case 400 -> "Error: Invalid input (username, password, or email cannot be blank)";
+                case 403 -> "Error: Username already taken";
+                case 500 -> "Error: Server error - registration failed";
+                default -> "Error: Unknown error during registration - " + e.getMessage();
+            };
         }
     }
 
@@ -81,7 +86,19 @@ public class ChessClient {
             state = State.SIGNEDIN;
             return String.format("Logged in as %s", result.username());
         } catch (ResponseException e) {
-            return e.getMessage();
+            return switch (e.statusCode()) {
+                case 401 -> {
+                    if (e.getMessage().contains("user does not exist")) {
+                        yield "Error: Username does not exist";
+                    } else if (e.getMessage().contains("password does not match")) {
+                        yield "Error: Incorrect password";
+                    } else {
+                        yield "Error: Unauthorized - " + e.getMessage();
+                    }
+                }
+                case 500 -> "Error: Server error - login failed";
+                default -> "Error: Unknown error during login - " + e.getMessage();
+            };
         }
     }
 

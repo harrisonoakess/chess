@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import java.io.*;
 import java.net.*;
+import java.util.HashMap;
 import java.util.Locale;
 
 
@@ -101,10 +102,11 @@ public void clear() throws ResponseException {
         if (!isSuccessful(status)) {
             try (InputStream respErr = http.getErrorStream()) {
                 if (respErr != null) {
-                    throw ResponseException.fromJson(respErr);
+                    var map = new Gson().fromJson(new InputStreamReader(respErr), HashMap.class);
+                    String message = map.get("message").toString();
+                    throw new ResponseException(status, message);  // Use HTTP status, not JSON status
                 }
             }
-
             throw new ResponseException(status, "other failure: " + status);
         }
     }
