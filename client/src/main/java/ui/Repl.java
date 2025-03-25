@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessBoard;
 import exception.ResponseException;
 import java.util.Scanner;
 import static ui.EscapeSequences.*;
@@ -35,9 +36,9 @@ public class Repl {
     private void printPrompt() {
         String logState;
         if (client.isLoggedIn()) {
-            logState = "[Logged out]";
+            logState = "[Logged out]>>> ";
         } else {
-            logState = "[Logged in]";
+            logState = "[Logged in]>>> ";
         }
         System.out.print("\n" + RESET_TEXT_COLOR + SET_TEXT_COLOR_WHITE + logState + SET_TEXT_COLOR_GREEN);
     }
