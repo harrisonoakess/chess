@@ -159,45 +159,55 @@ public class ChessClient {
     }
     private String makeBoard(ChessBoard board, String playerColor) {
         StringBuilder stringBoard = new StringBuilder();
-        if ("WHITE".equals(playerColor)) {
-            // White perspective
-            stringBoard.append("   a   b   c  d   e   f  g  h\n");
-            for (int row = 8; row >= 1; row--) {
-                stringBoard.append(row).append(" ");
-                for (int col = 1; col <= 8; col++) {
-                    String color = getColor(row,col);
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
-                }
-                stringBoard.append(" ").append(row).append("\n");
-            }
-            stringBoard.append("   a   b   c  d   e   f  g  h\n");
-        } else {
-            // Black perspective
-            stringBoard.append("   h   g   f  e   d   c  b  a\n");
-            for (int row = 1; row <= 8; row++) {
-                stringBoard.append(row).append(" ");
-                for (int col = 8; col >= 1; col--) {
-                    String color = getColor(row,col);
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
-                }
-                stringBoard.append(" ").append(row).append("\n");
-            }
-            stringBoard.append("   h   g   f  e   d   c  b  a\n");
-        }
+        boolean isWhite = "WHITE".equals(playerColor);
+
+        appendColumnLabels(stringBoard, isWhite);
+        appendBoardRows(stringBoard, board, isWhite);
+        appendColumnLabels(stringBoard, isWhite);
+
         return stringBoard.toString();
+    }
+
+    private void appendColumnLabels(StringBuilder stringBoard, boolean isWhite) {
+        String columns = isWhite ? "   a   b   c  d   e   f  g  h\n" :
+                "   h   g   f  e   d   c  b  a\n";
+        stringBoard.append(columns);
+    }
+
+    private void appendBoardRows(StringBuilder stringBoard, ChessBoard board, boolean isWhite) {
+        int startRow = isWhite ? 8 : 1;
+        int endRow = isWhite ? 1 : 8;
+        int rowIncrement = isWhite ? -1 : 1;
+
+        for (int row = startRow; isWhite ? row >= endRow : row <= endRow; row += rowIncrement) {
+            stringBoard.append(row).append(" ");
+            appendRowPieces(stringBoard, board, row, isWhite);
+            stringBoard.append(" ").append(row).append("\n");
+        }
+    }
+
+    private void appendRowPieces(StringBuilder stringBoard, ChessBoard board, int row, boolean isWhite) {
+        int startCol = isWhite ? 1 : 8;
+        int endCol = isWhite ? 8 : 1;
+        int colIncrement = isWhite ? 1 : -1;
+
+        for (int col = startCol; isWhite ? col <= endCol : col >= endCol; col += colIncrement) {
+            String color = getColor(row, col);
+            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+            stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
+        }
     }
 
     private String getColor(int row, int col) {
         String color;
         if ((row + col) % 2 == 0) {
             color = SET_BG_COLOR_DARK_GREY;
-        }else {
+        } else {
             color = SET_BG_COLOR_LIGHT_GREY;
         }
         return color;
     }
+
 
     private String getPieceSymbol(ChessPiece piece) {
         if (piece == null) {
