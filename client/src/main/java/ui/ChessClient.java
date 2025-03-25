@@ -15,37 +15,36 @@ public class ChessClient {
         this.serverUrl = serverUrl;
     }
 
-    public String evalLoggedOut(String input) {
-        try {
-            var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "register" -> register(params);
-                case "login" -> login(params);
-                case "quit" -> "quit";
-                default -> help();
-            };
-        } catch (ResponseException ex) {
-            return ex.getMessage();
+    public String eval(String input) {
+        var tokens = input.toLowerCase().split(" ");
+        var cmd = (tokens.length > 0) ? tokens[0] : "help";
+        var params = Arrays.copyOfRange(tokens, 1, tokens.length);
+        if (state == State.SIGNEDOUT) {
+            return evalLoggedOut(cmd, params);
+        } else {
+            return evalLoggedIn(cmd, params);
         }
-    }
-    public String evalLoggedIn(String input) {
-        try {
-            var tokens = input.toLowerCase().split(" ");
-            var cmd = (tokens.length > 0) ? tokens[0] : "help";
-            var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-            return switch (cmd) {
-                case "create game" -> createGame(params);
-                case "join game" -> joinGame(params);
-                case "list games" -> listGames(params);
-                case "logout" -> logout(params);
-                case "quit" -> "quit";
-                default -> help();
-            };
-        } catch (ResponseException ex) {
-            return ex.getMessage();
-        }
+
     }
 
+    public String evalLoggedOut(String cmd, String... params) { // the three periods means it can take
+        return switch (cmd) {                                   // a different amount of params each time
+            case "register" -> register(params);
+            case "login" -> login(params);
+            case "quit" -> "quit";
+            default -> help();
+        };
+    }
+
+    public String evalLoggedIn(String cmd, String... params) { // the three periods means it can take
+        return switch (cmd) {                                  // a different amount of params each time
+            case "create game" -> createGame(params);
+            case "join game" -> joinGame(params);
+            case "list games" -> listGames(params);
+            case "logout" -> logout(params);
+            case "quit" -> "quit";
+            default -> help();
+        };
+
+    }
 }
