@@ -126,7 +126,7 @@ public class Server {
         Spark.put("/game", ((request, response) -> {
             try{
                 String authToken = request.headers("Authorization");
-                JoingGameRequest joinGameRequest = gson.fromJson(request.body(), JoingGameRequest.class);
+                JoinGameRequest joinGameRequest = gson.fromJson(request.body(), JoinGameRequest.class);
                 gameService.joinGame(joinGameRequest.playerColor(), joinGameRequest.gameID(), authToken);
                 response.status(200);
                 return gson.toJson(new AddErrorMessage("test"));
