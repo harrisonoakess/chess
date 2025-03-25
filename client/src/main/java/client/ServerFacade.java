@@ -27,10 +27,12 @@ public class ServerFacade {
     }
 
     public LoginResult login(String username, String password) throws ResponseException {
-        var path = "/session";
-        // this is what will be sent into the endpoint
-        LoginRequest request = new LoginRequest(username, password);
-        return makeRequest("POST", path, request, LoginResult.class, null);
+        {
+            var path = "/session";
+            // this is what will be sent into the endpoint
+            LoginRequest request = new LoginRequest(username, password);
+            return makeRequest("POST", path, request, LoginResult.class, null);
+        }
     }
 
     public void logout(String authToken) throws ResponseException {
