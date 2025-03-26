@@ -84,7 +84,7 @@ public class ChessClient {
             LoginResult result = server.login(params[0], params[1]);
             authToken = result.authToken();
             state = State.SIGNEDIN;
-            return String.format("Logged in as %s", result.username());
+            return String.format("Logged in as %s, type 'help' for more.", result.username());
         } catch (ResponseException e) {
             return switch (e.statusCode()) {
                 case 401 -> {
@@ -138,7 +138,10 @@ public class ChessClient {
             } else {
                 color = null;
             }
-            if (!Objects.equals(color, "WHITE") && !Objects.equals(color, "BLACK") && !Objects.equals(color, null)) {
+            if (!params[0].matches("\\d+")) {
+                return "Game ID must be a number";
+            }
+            if (color != null && !color.equals("WHITE") && !color.equals("BLACK")) {
                 throw new ResponseException(400, "Color must be WHITE or BLACK");
             }
             server.joinGame(color, params[0], authToken);
@@ -146,6 +149,9 @@ public class ChessClient {
             String perspective = color != null && color.equals("BLACK") ? "BLACK" : "WHITE";
             return "Joined game " + params[0] + (color != null ? " as " + color : " as observer") + "\n" + makeBoard(game.getBoard(), perspective);
         } catch (ResponseException e) {
+            if (e.statusCode() == 400 && e.getMessage().contains("Invalid Game ID")) {
+                return "game not found";
+            }
             return e.getMessage();
         }
     }
@@ -156,7 +162,10 @@ public class ChessClient {
             if (params.length != 1) {
                 throw new ResponseException(400, "Expected: observe <game ID>");
             }
-//        server.joinGame(null, params[0], authToken);
+            if (!params[0].matches("\\d+")) {
+                return "Game ID must be a number";
+            }
+        server.joinGame(null, params[0], authToken);
             ChessGame game = new ChessGame();
             return String.format("Observing game: %s\n", params[0]) + makeBoard(game.getBoard(), "WHITE");
         } catch (ResponseException e) {
