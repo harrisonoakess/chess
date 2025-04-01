@@ -30,12 +30,26 @@ public class GameService {
     }
 
     public void joinGame(String playerColor, String gameID, String authToken) throws DataAccessException, SQLException {
+//        System.out.println("DEBUG: GameService playerColor = " + (playerColor == null ? "null" : "'" + playerColor + "'"));
+
         if (!authDAO.checkUserAuth(authToken)) {
             throw new DataAccessException("User not logged in");
         }
         if (gameID == null){
             throw new DataAccessException("Invalid Game ID");
         }
+        if (!gameExists(Integer.parseInt(gameID), authToken)) {
+            throw new DataAccessException("Game does not exist");
+        }
+//        if (playerColor != "BLACK"){
+//            if (playerColor != "WHITE") {
+//                return;
+//            }
+//        }
+//        System.out.println("DEBUG: GameService playerColor = " + (playerColor == null ? "null" : "'" + playerColor + "'"));
+        if (playerColor == null || playerColor.isEmpty()) {
+            return;
+            }
         if (Objects.equals(playerColor, "BLACK") || Objects.equals(playerColor, "WHITE")) {
             int gameIDint = Integer.parseInt(gameID);
             String username = authDAO.returnUsername(authToken);
@@ -58,5 +72,9 @@ public class GameService {
 
     public void clearData() throws DataAccessException {
         gameDAO.clearGames();
+    }
+
+    public boolean gameExists(int gameID, String authtoken) throws SQLException, DataAccessException {
+        return listGames(authtoken).containsKey(gameID);
     }
 }
