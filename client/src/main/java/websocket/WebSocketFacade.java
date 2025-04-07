@@ -40,7 +40,7 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, ex.getMessage());
         }
     }
-    //Endpoint requires this method, but you don't have to do anything
+    //Endpoint requires this method, but you don't have to do anything.
 //    @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
