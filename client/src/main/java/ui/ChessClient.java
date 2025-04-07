@@ -3,25 +3,32 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
+import chess.ChessMove;
 import chess.ChessPosition;
 import client.ServerFacade;
 import exception.ResponseException;
 import model.*;
+import websocket.NotificationHandler;
+import websocket.WebSocketFacade;
+import websocket.NotificationHandler;
+
 
 import java.util.Arrays;
 import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient {
+public class ChessClient{
     private State state = State.SIGNEDOUT;
     private final ServerFacade server;
     private final String serverUrl;
     private String authToken = null;
+    private WebSocketFacade webSocketFacade;
 
     public ChessClient(String serverUrl) {
         this.server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
+        this.webSocketFacade = new WebSocketFacade(serverUrl, this);
     }
 
     public String eval(String input) throws ResponseException {

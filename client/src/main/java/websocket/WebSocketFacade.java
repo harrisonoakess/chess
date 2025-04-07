@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import org.glassfish.tyrus.core.wsadl.model.Endpoint;
@@ -79,3 +80,16 @@ public class WebSocketFacade extends Endpoint {
         }
     }
 }
+
+// Subclass for MAKE_MOVE, it says not to edit USerGameCommand
+class MakeMoveCommand extends UserGameCommand {
+    private final ChessMove move;
+
+    public MakeMoveCommand(String authToken, Integer gameID, ChessMove move) {
+        super(CommandType.MAKE_MOVE, authToken, gameID);
+        this.move = move;
+    }
+}
+
+// Subclass for ServerMessage, it says not to edit ServerMessage
+
