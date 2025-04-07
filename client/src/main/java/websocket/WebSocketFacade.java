@@ -2,7 +2,6 @@ package websocket;
 
 import com.google.gson.Gson;
 import exception.ResponseException;
-import org.eclipse.jetty.server.Response;
 import org.glassfish.tyrus.core.wsadl.model.Endpoint;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
@@ -55,13 +54,28 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, "CONNECT Failed: " + exception.getMessage());
         }
     }
-    public void makeMove(String gameID, String AuthToken) throws ResponseException{
-
+    public void makeMove(String gameID, String authToken) throws ResponseException{
+        try {
+            var makeMoveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, Integer.parseInt(gameID));
+            this.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
+        } catch (IOException exception) {
+            throw new ResponseException(500, "MAKE_MOVE Failed: " + exception.getMessage());
+        }
     }
-    public void leave(String gameID, String AuthToken) throws ResponseException{
-
+    public void leave(String gameID, String authToken) throws ResponseException{
+        try {
+            var leaveCommand = new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, Integer.parseInt(gameID));
+            this.session.getBasicRemote().sendText(new Gson().toJson(leaveCommand));
+        } catch (IOException exception) {
+            throw new ResponseException(500, "LEAVE Failed: " + exception.getMessage());
+        }
     }
-    public void resign(String gameID, String AuthToken) throws ResponseException{
-
+    public void resign(String gameID, String authToken) throws ResponseException{
+        try {
+            var resignCommand = new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, Integer.parseInt(gameID));
+            this.session.getBasicRemote().sendText(new Gson().toJson(resignCommand));
+        } catch (IOException exception) {
+            throw new ResponseException(500, "RESIGN Failed: " + exception.getMessage());
+        }
     }
 }
