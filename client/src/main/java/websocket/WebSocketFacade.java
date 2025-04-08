@@ -31,7 +31,7 @@ public class WebSocketFacade extends Endpoint {
             this.session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    ServerMessage notification = new Gson().fromJson(message, ServerMessage.class);
+                    ServerMessageExtended notification = new Gson().fromJson(message, ServerMessageExtended.class);
                     notificationHandler.notify(notification);
                 }
             });
@@ -40,11 +40,9 @@ public class WebSocketFacade extends Endpoint {
         }
     }
     //Endpoint requires this method, but you don't have to do anything.
-//    @Override
+   @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
     }
-
-
 
     public void connect(String gameID, String authToken) throws ResponseException{
         try {
@@ -92,7 +90,6 @@ class MakeMoveCommand extends UserGameCommand {
 
 // Subclass for ServerMessage, it says not to edit ServerMessage
 class ServerMessageExtended extends ServerMessage {
-    ServerMessageType serverMessageType;
     private String message;
     private String errorMessage;
     private chess.ChessGame game;

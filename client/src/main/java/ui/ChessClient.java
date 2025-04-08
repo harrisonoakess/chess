@@ -24,11 +24,14 @@ public class ChessClient{
     private final String serverUrl;
     private String authToken = null;
     private WebSocketFacade webSocketFacade;
+    private String currentGameID = null;
+    private String playerColor = null;
+    private ChessGame currentGame = null;
 
-    public ChessClient(String serverUrl) {
+    public ChessClient(String serverUrl) throws ResponseException {
         this.server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
-        this.webSocketFacade = new WebSocketFacade(serverUrl, this);
+        this.webSocketFacade = new WebSocketFacade(serverUrl, (NotificationHandler) this);
     }
 
     public String eval(String input) throws ResponseException {
@@ -65,12 +68,12 @@ public class ChessClient{
 
     public String evalGameplay(String cmd, String... paramas) throws ResponseException {
         return switch (cmd) {
-            case "help" -> helpGameplay();
-            case "redraw" -> redraw();
-            case "leave" -> leave();
-            case "move" -> makeMove(parmas);
-            case "resign" -> resign();
-            case "highlight" -> highlightMoves(params);
+//            case "help" -> helpGameplay();
+//            case "redraw" -> redraw();
+//            case "leave" -> leave();
+//            case "move" -> makeMove(parmas);
+//            case "resign" -> resign();
+//            case "highlight" -> highlightMoves(params);
             default -> help();
         };
     }
@@ -163,9 +166,13 @@ public class ChessClient{
                 throw new ResponseException(400, "Color must be WHITE or BLACK");
             }
             server.joinGame(color, params[0], authToken);
-            ChessGame game = new ChessGame();
+            currentGameID = params[0];
+            playerColor = color;
+            currentGame = new ChessGame();
+            state = state.GAMEPLAY;
+            webSocketFacade.connect(currentGameID, authToken);
             String perspective = color != null && color.equals("BLACK") ? "BLACK" : "WHITE";
-            return "Joined game " + params[0] + (color != null ? " as " + color : " as observer") + "\n" + makeBoard(game.getBoard(), perspective);
+            return "Joined game " + params[0] + (color != null ? " as " + color : " as observer") + "\n" + makeBoard(currentGame.getBoard(), perspective);
         } catch (ResponseException e) {
             if (e.statusCode() == 400 && e.getMessage().contains("Invalid Game ID")) {
                 return "game not found";
