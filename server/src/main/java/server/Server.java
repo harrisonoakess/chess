@@ -6,8 +6,8 @@ import dataaccess.datastorage.CreateNewTables;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBGameDAO;
 import dataaccess.datastorage.DBUserDAO;
+import websocket.WebSocketHandler;
 import model.*;
-import org.eclipse.jetty.websocket.server.WebSocketHandler;
 import service.GameService;
 import service.UserService;
 import spark.*;
@@ -35,12 +35,14 @@ public class Server {
 
         Spark.staticFiles.location("web");
 
+        // websocket
+        Spark.webSocket("/ws", WebSocketHandler.class);
+
         // Register your endpoints and handle exceptions here.
         registeredUserEndpoints();
         registeredGameEndpoints();
 
-        // websocket
-        Spark.webSocket("/ws", WebSocketHandler.class);
+
 
         //This line initializes the server and can be removed once you have a functioning endpoint
 //        Spark.init();

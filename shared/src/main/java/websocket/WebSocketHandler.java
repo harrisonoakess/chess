@@ -4,18 +4,14 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBGameDAO;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
-import org.eclipse.jetty.websocket.api.annotations.OnWebSocketMessage;
-import org.eclipse.jetty.websocket.api.annotations.WebSocket;
+import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
-
-
-import javax.websocket.OnClose;
-import javax.websocket.OnError;
-import javax.websocket.OnOpen;
-import javax.xml.crypto.Data;
+import websocket.messages.ServerMessage;
+import websocket.messages.ServerMessageExtended;
 import java.io.IOException;
-import java.util.Timer;
+import java.sql.SQLException;
 
 
 @WebSocket
@@ -34,24 +30,39 @@ public class WebSocketHandler {
         try {
             DBAuthDAO authDAO = new DBAuthDAO();
             DBGameDAO gameDAO = new DBGameDAO();
-            String username = authDAO.getAuthToken(authToken).username();
-            if (gameData == null) throw new DataAccessException("invalid Game ID")
+            String username = authDAO.returnUsername(authToken);
+            GameData gameData = gameDAO.listGames().get(gameID);
+            if (gameData == null) throw new DataAccessException("Game ID does not exist");
+
+            Connection connection = new Connection(username, session);
+            connections.add(username, connection);
+
+            ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
+            response.game = gameData.game();
+            connection.send(new Gson().toJson(response));
+
+        } catch (DataAccessException | SQLException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    @OnOpen
+    @OnWebSocketConnect
     public void onOpen(Session session) {
-        System.out.println("WebSocket connected: " + session.getId());
+        System.out.println("WebSocket connected: " + session.getRemoteAddress());
     }
-    @OnClose
+    @OnWebSocketClose
     public void onClose(Session session) {
-        connections.remove(session);
-        System.out.println("WebSocket closed: " + session.getId());
+        for (var entry : connections.connections.entrySet()) {
+            if (entry.getValue().session.equals(session)) {
+                connections.remove(entry.getKey());
+                break;
+            }
+        }
+        System.out.println("WebSocket closed");
     }
 
-    @OnError
-    public void onError(Session session, Throwable throwable) {
-        System.err.println("WebSocket error: " + throwable.getMessage());
+    @OnWebSocketError
+    public void onError(Session session) {
+        System.err.println("WebSocket error");
     }
-
 }
