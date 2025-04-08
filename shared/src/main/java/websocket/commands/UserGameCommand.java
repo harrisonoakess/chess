@@ -1,5 +1,7 @@
 package websocket.commands;
 
+import websocket.messages.ServerMessage;
+
 import java.util.Objects;
 
 /**
@@ -58,5 +60,14 @@ public class UserGameCommand {
     @Override
     public int hashCode() {
         return Objects.hash(getCommandType(), getAuthToken(), getGameID());
+    }
+    public static class ServerMessageExtended extends ServerMessage {
+        public String message;
+        public String errorMessage;
+        public chess.ChessGame game;
+
+        public ServerMessageExtended(ServerMessageType type) {
+            super(type);
+        }
     }
 }

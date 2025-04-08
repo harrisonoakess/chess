@@ -1,6 +1,7 @@
 package websocket;
 
 import com.google.gson.Gson;
+import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBGameDAO;
 import org.eclipse.jetty.websocket.api.Session;
@@ -9,6 +10,10 @@ import org.eclipse.jetty.websocket.api.annotations.WebSocket;
 import websocket.commands.UserGameCommand;
 
 
+import javax.websocket.OnClose;
+import javax.websocket.OnError;
+import javax.websocket.OnOpen;
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.util.Timer;
 
@@ -29,8 +34,24 @@ public class WebSocketHandler {
         try {
             DBAuthDAO authDAO = new DBAuthDAO();
             DBGameDAO gameDAO = new DBGameDAO();
-            String username = authDAO.
+            String username = authDAO.getAuthToken(authToken).username();
+            if (gameData == null) throw new DataAccessException("invalid Game ID")
         }
+    }
+
+    @OnOpen
+    public void onOpen(Session session) {
+        System.out.println("WebSocket connected: " + session.getId());
+    }
+    @OnClose
+    public void onClose(Session session) {
+        connections.remove(session);
+        System.out.println("WebSocket closed: " + session.getId());
+    }
+
+    @OnError
+    public void onError(Session session, Throwable throwable) {
+        System.err.println("WebSocket error: " + throwable.getMessage());
     }
 
 }
