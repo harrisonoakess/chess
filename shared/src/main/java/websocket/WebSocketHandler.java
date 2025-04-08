@@ -10,6 +10,8 @@ import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessageExtended;
+
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
 
@@ -27,14 +29,16 @@ public class WebSocketHandler {
     }
 
     private void connect(String authToken, int gameID, Session session) throws IOException {
+        Connection connection = null;
         try {
             DBAuthDAO authDAO = new DBAuthDAO();
             DBGameDAO gameDAO = new DBGameDAO();
             String username = authDAO.returnUsername(authToken);
+            if (username == null) throw new DataAccessException("Auth token does note exist");
             GameData gameData = gameDAO.listGames().get(gameID);
             if (gameData == null) throw new DataAccessException("Game ID does not exist");
 
-            Connection connection = new Connection(username, session);
+            connection = new Connection(username, session);
             connections.add(username, connection);
 
             ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
@@ -42,7 +46,13 @@ public class WebSocketHandler {
             connection.send(new Gson().toJson(response));
 
         } catch (DataAccessException | SQLException e) {
-            throw new RuntimeException(e);
+            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
+            error.errorMessage = "Error: " + e.getMessage();
+            if (connection != null) {
+                connection.send(new Gson().toJson(error));
+            } else {
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
         }
     }
 
@@ -51,18 +61,18 @@ public class WebSocketHandler {
         System.out.println("WebSocket connected: " + session.getRemoteAddress());
     }
     @OnWebSocketClose
-    public void onClose(Session session) {
+    public void onClose(Session session, int statusCode, String reason) {
         for (var entry : connections.connections.entrySet()) {
             if (entry.getValue().session.equals(session)) {
                 connections.remove(entry.getKey());
                 break;
             }
         }
-        System.out.println("WebSocket closed");
+        System.out.println("WebSocket closed: " + statusCode + ", " + reason);
     }
 
     @OnWebSocketError
-    public void onError(Session session) {
+    public void onError(Session session, Throwable cause) {
         System.err.println("WebSocket error");
     }
 }
