@@ -63,8 +63,16 @@ public class ChessClient{
         };
     }
 
-    public String evalGameplay(String cmd, String... parmas) throws ResponseException {
-        return;
+    public String evalGameplay(String cmd, String... paramas) throws ResponseException {
+        return switch (cmd) {
+            case "help" -> helpGameplay();
+            case "redraw" -> redraw();
+            case "leave" -> leave();
+            case "move" -> makeMove(parmas);
+            case "resign" -> resign();
+            case "highlight" -> highlightMoves(params);
+            default -> help();
+        };
     }
 
     public String register(String... params) throws ResponseException {
