@@ -1,5 +1,6 @@
 package websocket;
 
+import chess.ChessMove;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
@@ -25,6 +26,7 @@ public class WebSocketHandler {
         UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
         switch (action.getCommandType()) {
             case CONNECT -> connect(action.getAuthToken(), action.getGameID(), session);
+            case MOVE -> makeMove(action.getAuthToken(), action.getGameID(), action.getMove(), session);
         }
     }
 
@@ -58,6 +60,11 @@ public class WebSocketHandler {
             }
         }
     }
+
+    private void makeMove(String authToken, int gameID, ChessMove move, Session session) {
+
+    }
+
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
