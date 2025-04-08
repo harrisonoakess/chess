@@ -11,9 +11,9 @@ import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessageExtended;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Map;
 
 
 @WebSocket
@@ -39,12 +39,15 @@ public class WebSocketHandler {
             if (gameData == null) throw new DataAccessException("Game ID does not exist");
 
             connection = new Connection(username, session);
-            connections.add(username, connection);
+            connections.add(username, gameID, connection);
 
             ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
             response.game = gameData.game();
             connection.send(new Gson().toJson(response));
 
+            ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.message = username + " has joined the game";
+            connections.broadcast(gameID, username, new Gson().toJson(notification));
         } catch (DataAccessException | SQLException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
             error.errorMessage = "Error: " + e.getMessage();
@@ -62,10 +65,14 @@ public class WebSocketHandler {
     }
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
-        for (var entry : connections.connections.entrySet()) {
-            if (entry.getValue().session.equals(session)) {
-                connections.remove(entry.getKey());
-                break;
+        for (var gameEntry : connections.gameConnections.entrySet()) {
+            int gameID = gameEntry.getKey();
+            Map<String, Connection> users = gameEntry.getValue();
+            for (var userEntry : users.entrySet()) {
+                if (userEntry.getValue().session.equals(session)) {
+                    connections.remove(userEntry.getKey(), gameID);
+                    break;
+                }
             }
         }
         System.out.println("WebSocket closed: " + statusCode + ", " + reason);

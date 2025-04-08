@@ -1,41 +1,55 @@
 package websocket;
 
 import com.google.gson.Gson;
-import websocket.Connection;
 import websocket.messages.ServerMessage;
 
-import javax.websocket.Session;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ConnectionManager {
-    public final ConcurrentHashMap<String, Connection> connections = new ConcurrentHashMap<>();
+    public final Map<Integer, Map<String, Connection>> gameConnections = new HashMap<>();
 
-    public void add(String visitorName, Connection connection) {
-        connections.put(visitorName, connection);
+    public void add(String visitorName, int gameID, Connection connection) {
+        if (!gameConnections.containsKey(gameID)) {
+            gameConnections.put(gameID, new HashMap<>());
+        }
+        gameConnections.get(gameID).put(visitorName, connection);
     }
 
-    public void remove(String visitorName) {
-        connections.remove(visitorName);
-    }
-
-    public void broadcast(String excludeUsername, ServerMessage message) throws IOException {
-        var gson = new Gson();
-        var removeList = new ArrayList<Connection>();
-        for (var c : connections.values()) {
-            if (c.session.isOpen()) {
-                if (!c.visitorName.equals(excludeUsername)) {
-                    c.send(gson.toJson(message));
-                }
-            } else {
-                removeList.add(c);
+    public void remove(String visitorName, int gameID) {
+        Map<String, Connection> connections = gameConnections.get(gameID);
+        if (connections != null) {
+            connections.remove(visitorName);
+            if (connections.isEmpty()) {
+                gameConnections.remove(gameID);
             }
         }
+    }
 
-        // Clean up any connections that were left open
-        for (var c : removeList) {
-            connections.remove(c.visitorName);
+    public void broadcast(int gameID, String excludeUsername, String message) throws IOException {
+        Map<String, Connection> connections = gameConnections.get(gameID);
+        if (connections != null) {
+            var removeList = new ArrayList<String>();
+            for (var entry : connections.entrySet()) {
+                String username = entry.getKey();
+                Connection conn = entry.getValue();
+                if (!username.equals(excludeUsername)) {
+                    if (conn.session.isOpen()) {
+                        conn.send(message);
+                    } else {
+                        removeList.add(username);
+                    }
+                }
+            }
+            // Clean up closed connections
+            for (String username : removeList) {
+                connections.remove(username);
+            }
+            if (connections.isEmpty()) {
+                gameConnections.remove(gameID);
+            }
         }
     }
 }
