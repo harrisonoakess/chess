@@ -35,12 +35,11 @@ public class ChessClient{
         var tokens = input.toLowerCase().split(" ");
         var cmd = (tokens.length > 0) ? tokens[0] : "help";
         var params = Arrays.copyOfRange(tokens, 1, tokens.length);
-        if (state == State.SIGNEDOUT) {
-            return evalLoggedOut(cmd, params);
-        } else {
-            return evalLoggedIn(cmd, params);
-        }
-
+        return switch (state) {
+            case SIGNEDOUT -> evalLoggedOut(cmd, params);
+            case SIGNEDIN -> evalLoggedIn(cmd, params);
+            case GAMEPLAY -> evalGameplay(cmd, params);
+        };
     }
 
     public String evalLoggedOut(String cmd, String... params) throws ResponseException { // the three periods means it can take
@@ -62,6 +61,10 @@ public class ChessClient{
             case "quit" -> "quit";
             default -> help();
         };
+    }
+
+    public String evalGameplay(String cmd, String... parmas) throws ResponseException {
+        return;
     }
 
     public String register(String... params) throws ResponseException {

@@ -3,7 +3,6 @@ package websocket;
 import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
-import org.glassfish.tyrus.core.wsadl.model.Endpoint;
 import websocket.commands.UserGameCommand;
 import websocket.messages.ServerMessage;
 
@@ -55,9 +54,9 @@ public class WebSocketFacade extends Endpoint {
             throw new ResponseException(500, "CONNECT Failed: " + exception.getMessage());
         }
     }
-    public void makeMove(String gameID, String authToken) throws ResponseException{
+    public void makeMove(String gameID, String authToken, ChessMove move) throws ResponseException{
         try {
-            var makeMoveCommand = new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, Integer.parseInt(gameID));
+            var makeMoveCommand = new MakeMoveCommand(authToken, Integer.parseInt(gameID), move);
             this.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
         } catch (IOException exception) {
             throw new ResponseException(500, "MAKE_MOVE Failed: " + exception.getMessage());
@@ -92,4 +91,26 @@ class MakeMoveCommand extends UserGameCommand {
 }
 
 // Subclass for ServerMessage, it says not to edit ServerMessage
+class ServerMessageExtended extends ServerMessage {
+    ServerMessageType serverMessageType;
+    private String message;
+    private String errorMessage;
+    private chess.ChessGame game;
+
+    public ServerMessageExtended(ServerMessageType type) {
+        super(type);
+    }
+    public String getMessage() {
+        return message;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public chess.ChessGame getGame() {
+        return game;
+    }
+
+}
 
