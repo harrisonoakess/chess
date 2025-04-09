@@ -9,6 +9,7 @@ import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import org.eclipse.jetty.websocket.api.annotations.*;
 import websocket.commands.UserGameCommand;
+import websocket.commands.UserMoveCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessageExtended;
 
@@ -23,16 +24,18 @@ public class WebSocketHandler {
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        UserGameCommand action = new Gson().fromJson(message, UserGameCommand.class);
-        switch (action.getCommandType()) {
-            case CONNECT -> connect(action.getAuthToken(), action.getGameID(), session);
-            case MOVE -> makeMove(action.getAuthToken(), action.getGameID(), action.getMove(), session);
+        UserGameCommand gameAction = new Gson().fromJson(message, UserGameCommand.class);
+        UserMoveCommand moveAction = new Gson().fromJson(message, UserMoveCommand.class);
+        switch (gameAction.getCommandType()) {
+            case CONNECT -> connect(gameAction.getAuthToken(), gameAction.getGameID(), session);
+            case MAKE_MOVE -> makeMove(moveAction.getAuthToken(), moveAction.getGameID(), moveAction.getMove(), session);
         }
-    }
+}
 
     private void connect(String authToken, int gameID, Session session) throws IOException {
         Connection connection = null;
         try {
+            // setup and error checking
             DBAuthDAO authDAO = new DBAuthDAO();
             DBGameDAO gameDAO = new DBGameDAO();
             String username = authDAO.returnUsername(authToken);
@@ -40,13 +43,16 @@ public class WebSocketHandler {
             GameData gameData = gameDAO.listGames().get(gameID);
             if (gameData == null) throw new DataAccessException("Game ID does not exist");
 
+            // establish connection and add to list
             connection = new Connection(username, session);
             connections.add(username, gameID, connection);
 
+            // send message to server
             ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
             response.game = gameData.game();
             connection.send(new Gson().toJson(response));
 
+            // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.message = username + " has joined the game";
             connections.broadcast(gameID, username, new Gson().toJson(notification));

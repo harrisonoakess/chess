@@ -1,8 +1,5 @@
 package websocket;
 
-import com.google.gson.Gson;
-import websocket.messages.ServerMessage;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,10 +31,10 @@ public class ConnectionManager {
             var removeList = new ArrayList<String>();
             for (var entry : connections.entrySet()) {
                 String username = entry.getKey();
-                Connection conn = entry.getValue();
+                Connection connection = entry.getValue();
                 if (!username.equals(excludeUsername)) {
-                    if (conn.session.isOpen()) {
-                        conn.send(message);
+                    if (connection.session.isOpen()) {
+                        connection.send(message);
                     } else {
                         removeList.add(username);
                     }
