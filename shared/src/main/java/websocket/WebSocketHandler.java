@@ -93,14 +93,23 @@ public class WebSocketHandler {
             if (Objects.equals(gameData.blackUsername(), username)) playerColor = ChessGame.TeamColor.BLACK;
             if (currentGame.getTeamTurn() != playerColor) throw new DataAccessException("Its not your turn");
 
-            // check to see if the move is valid
+            // check to see if the move is valid then makes the move if it is
             if (currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
             currentGame.makeMove(move);
 
-            // update game
+            // updates game in SQL
             GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
-            gameDAO.
+            gameDAO.updateGame(gameData);
 
+            // send message to server
+            ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
+            response.game = currentGame;
+            connections.broadcast(gameID, null, new Gson().toJson(response));
+
+// send message back to other players "broadcast"
+            ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.message = username + " has moved to " + move.getEndPosition();
+            connections.broadcast(gameID, username, new Gson().toJson(notification));
 
     } catch (DataAccessException | SQLException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
