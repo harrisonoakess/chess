@@ -14,12 +14,13 @@ public class ChessGame {
 
     private TeamColor playerTurn;
     private ChessBoard board;
+    private boolean gameOver;
 
     public ChessGame() {
         this.playerTurn = TeamColor.WHITE;
         this.board = new ChessBoard();
+        this.gameOver = false;
         board.resetBoard();
-
     }
 
 
@@ -249,6 +250,13 @@ public class ChessGame {
             }
         }
         return allPostions;
+    }
+
+    public boolean isGameOver() {
+        return gameOver;
+    }
+    public void gameFinished (boolean gameOver) {
+        this.gameOver = gameOver;
     }
 }
 

@@ -166,6 +166,12 @@ public class WebSocketHandler {
             // make sure user is in the game
             connection = connections.gameConnections.get(gameID).get(username);
             if (connection == null) throw new DataAccessException("User is not in the game");
+
+            ChessGame currentGame = gameData.game();
+
+
+
+
         } catch (SQLException | DataAccessException e) {
             throw new RuntimeException(e);
         }
