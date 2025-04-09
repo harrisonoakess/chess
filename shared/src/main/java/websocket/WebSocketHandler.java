@@ -15,9 +15,9 @@ import websocket.commands.UserMoveCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessageExtended;
 
-import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -94,7 +94,8 @@ public class WebSocketHandler {
             if (currentGame.getTeamTurn() != playerColor) throw new DataAccessException("Its not your turn");
 
             // check to see if the move is valid then makes the move if it is
-            if (currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
+//            Collection<ChessMove> validMoves = currentGame.validMoves(move.getStartPosition());
+            if (!currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
             currentGame.makeMove(move);
 
             // updates game in SQL
