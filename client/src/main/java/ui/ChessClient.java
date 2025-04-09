@@ -232,15 +232,14 @@ public class ChessClient implements NotificationHandler{
     }
 
     public String help() {
-        if (state == State.SIGNEDOUT) {
-            return """
+        return switch (state) {
+            case SIGNEDOUT -> """
                     register <username> <password> <email>
                     login <username> <password>
                     help
                     quit
                     """;
-        } else {
-            return """
+            case SIGNEDIN -> """
                     create <name of game>
                     list
                     join <game ID> <BLACK or WHITE>
@@ -249,8 +248,17 @@ public class ChessClient implements NotificationHandler{
                     help
                     quit
                     """;
-        }
+            case GAMEPLAY -> """
+                    redraw
+                    leave
+                    move <start> <end>
+                    resign
+                    highlight
+                    help
+                    """;
+        };
     }
+
 
     private String redraw() {
         return "";
