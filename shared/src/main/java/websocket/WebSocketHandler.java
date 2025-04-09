@@ -17,7 +17,6 @@ import websocket.messages.ServerMessageExtended;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
@@ -25,11 +24,15 @@ import java.util.Objects;
 @WebSocket
 public class WebSocketHandler {
     private final ConnectionManager connections = new ConnectionManager();
+    private final DBAuthDAO authDAO = new DBAuthDAO();
+    private final DBGameDAO gameDAO = new DBGameDAO();
+    private final Gson gson = new Gson();
+
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
-        UserGameCommand gameAction = new Gson().fromJson(message, UserGameCommand.class);
-        UserMoveCommand moveAction = new Gson().fromJson(message, UserMoveCommand.class);
+        UserGameCommand gameAction = gson.fromJson(message, UserGameCommand.class);
+        UserMoveCommand moveAction = gson.fromJson(message, UserMoveCommand.class);
         switch (gameAction.getCommandType()) {
             case CONNECT -> connect(gameAction.getAuthToken(), gameAction.getGameID(), session);
             case MAKE_MOVE -> makeMove(moveAction.getAuthToken(), moveAction.getGameID(), moveAction.getMove(), session);
@@ -39,9 +42,7 @@ public class WebSocketHandler {
     private void connect(String authToken, int gameID, Session session) throws IOException {
         Connection connection = null;
         try {
-            // setup and error checking
-            DBAuthDAO authDAO = new DBAuthDAO();
-            DBGameDAO gameDAO = new DBGameDAO();
+            // check auth and ID
             String username = authDAO.returnUsername(authToken);
             if (username == null) throw new DataAccessException("Auth token does note exist");
             GameData gameData = gameDAO.listGames().get(gameID);
@@ -54,19 +55,19 @@ public class WebSocketHandler {
             // send message to server
             ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
             response.game = gameData.game();
-            connection.send(new Gson().toJson(response));
+            connection.send(gson.toJson(response));
 
             // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.message = username + " has joined the game";
-            connections.broadcast(gameID, username, new Gson().toJson(notification));
+            connections.broadcast(gameID, username, gson.toJson(notification));
         } catch (DataAccessException | SQLException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
             error.errorMessage = "Error: " + e.getMessage();
             if (connection != null) {
-                connection.send(new Gson().toJson(error));
+                connection.send(gson.toJson(error));
             } else {
-                session.getRemote().sendString(new Gson().toJson(error));
+                session.getRemote().sendString(gson.toJson(error));
             }
         }
     }
@@ -74,9 +75,7 @@ public class WebSocketHandler {
     private void makeMove(String authToken, int gameID, ChessMove move, Session session) throws IOException {
         Connection connection = null;
         try {
-            // setup and error checking
-            DBAuthDAO authDAO = new DBAuthDAO();
-            DBGameDAO gameDAO = new DBGameDAO();
+            // check auth and IDg
             String username = authDAO.returnUsername(authToken);
             if (username == null) throw new DataAccessException("Auth token does note exist");
             GameData gameData = gameDAO.listGames().get(gameID);
@@ -105,30 +104,29 @@ public class WebSocketHandler {
             // send message to server
             ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
             response.game = currentGame;
-            connections.broadcast(gameID, null, new Gson().toJson(response));
+            connections.broadcast(gameID, null, gson.toJson(response));
 
 // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.message = username + " has moved to " + move.getEndPosition();
-            connections.broadcast(gameID, username, new Gson().toJson(notification));
+            connections.broadcast(gameID, username, gson.toJson(notification));
 
     } catch (DataAccessException | SQLException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
             error.errorMessage = "Error: " + e.getMessage();
             if (connection != null) {
-                connection.send(new Gson().toJson(error));
+                connection.send(gson.toJson(error));
             } else {
-                session.getRemote().sendString(new Gson().toJson(error));
+                session.getRemote().sendString(gson.toJson(error));
             }
         } catch (InvalidMoveException e) {
             throw new RuntimeException(e);
         }
     }
 
-
     @OnWebSocketConnect
     public void onOpen(Session session) {
-        System.out.println("WebSocket connected: " + session.getRemoteAddress());
+        System.out.printf("WebSocket connected: %s%n", session.getRemoteAddress());
     }
     @OnWebSocketClose
     public void onClose(Session session, int statusCode, String reason) {
@@ -142,7 +140,7 @@ public class WebSocketHandler {
                 }
             }
         }
-        System.out.println("WebSocket closed: " + statusCode + ", " + reason);
+        System.out.printf("WebSocket closed (%d): %s%n", statusCode, reason);
     }
 
     @OnWebSocketError

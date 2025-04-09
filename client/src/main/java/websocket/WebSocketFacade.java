@@ -4,7 +4,10 @@ import chess.ChessMove;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import websocket.commands.UserGameCommand;
+import websocket.commands.UserMoveCommand;
 import websocket.messages.ServerMessage;
+import websocket.messages.ServerMessageExtended;
+import websocket.WebSocketFacade;
 
 import javax.websocket.*;
 import java.io.IOException;
@@ -54,7 +57,7 @@ public class WebSocketFacade extends Endpoint {
     }
     public void makeMove(String gameID, String authToken, ChessMove move) throws ResponseException{
         try {
-            var makeMoveCommand = new MakeMoveCommand(authToken, Integer.parseInt(gameID), move);
+            var makeMoveCommand = new UserMoveCommand(authToken, Integer.parseInt(gameID), move);
             this.session.getBasicRemote().sendText(new Gson().toJson(makeMoveCommand));
         } catch (IOException exception) {
             throw new ResponseException(500, "MAKE_MOVE Failed: " + exception.getMessage());
@@ -78,36 +81,6 @@ public class WebSocketFacade extends Endpoint {
     }
 }
 
-// Subclass for MAKE_MOVE, it says not to edit USerGameCommand
-class MakeMoveCommand extends UserGameCommand {
-    private final ChessMove move;
 
-    public MakeMoveCommand(String authToken, Integer gameID, ChessMove move) {
-        super(CommandType.MAKE_MOVE, authToken, gameID);
-        this.move = move;
-    }
-}
 
-// Subclass for ServerMessage, it says not to edit ServerMessage
-class ServerMessageExtended extends ServerMessage {
-    private String message;
-    private String errorMessage;
-    private chess.ChessGame game;
-
-    public ServerMessageExtended(ServerMessageType type) {
-        super(type);
-    }
-    public String getMessage() {
-        return message;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public chess.ChessGame getGame() {
-        return game;
-    }
-
-}
 

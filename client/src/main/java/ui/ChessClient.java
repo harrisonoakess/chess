@@ -3,22 +3,20 @@ package ui;
 import chess.ChessBoard;
 import chess.ChessGame;
 import chess.ChessPiece;
-import chess.ChessMove;
 import chess.ChessPosition;
 import client.ServerFacade;
 import exception.ResponseException;
 import model.*;
 import websocket.NotificationHandler;
 import websocket.WebSocketFacade;
-import websocket.NotificationHandler;
+import websocket.messages.ServerMessageExtended;
 
 
 import java.util.Arrays;
-import java.util.Objects;
 
 import static ui.EscapeSequences.*;
 
-public class ChessClient{
+public class ChessClient implements NotificationHandler{
     private State state = State.SIGNEDOUT;
     private final ServerFacade server;
     private final String serverUrl;
@@ -31,7 +29,23 @@ public class ChessClient{
     public ChessClient(String serverUrl) throws ResponseException {
         this.server = new ServerFacade(serverUrl);
         this.serverUrl = serverUrl;
-        this.webSocketFacade = new WebSocketFacade(serverUrl, (NotificationHandler) this);
+        this.webSocketFacade = new WebSocketFacade(serverUrl, this);
+    }
+
+    @Override
+    public void notify(ServerMessageExtended serverMessageExtended) {
+        switch (serverMessageExtended.getServerMessageType()) {
+            case LOAD_GAME:
+                currentGame = serverMessageExtended.game;
+                System.out.println("\nGame updated:\n" + makeBoard(currentGame.getBoard(), playerColor != null ? playerColor : "WHITE"));
+                break;
+            case NOTIFICATION:
+                System.out.println("\n" + SET_TEXT_COLOR_YELLOW + serverMessageExtended.message + RESET_TEXT_COLOR);
+                break;
+            case ERROR:
+                System.out.println("\n" + SET_TEXT_COLOR_RED + serverMessageExtended.errorMessage + RESET_TEXT_COLOR);
+                break;
+        }
     }
 
     public String eval(String input) throws ResponseException {
@@ -66,14 +80,14 @@ public class ChessClient{
         };
     }
 
-    public String evalGameplay(String cmd, String... paramas) throws ResponseException {
+    public String evalGameplay(String cmd, String... params) throws ResponseException {
         return switch (cmd) {
 //            case "help" -> helpGameplay();
-//            case "redraw" -> redraw();
-//            case "leave" -> leave();
-//            case "move" -> makeMove(parmas);
-//            case "resign" -> resign();
-//            case "highlight" -> highlightMoves(params);
+            case "redraw" -> redraw();
+            case "leave" -> leave();
+            case "move" -> makeMove(params);
+            case "resign" -> resign();
+            case "highlight" -> highlightMoves(params);
             default -> help();
         };
     }
@@ -237,6 +251,31 @@ public class ChessClient{
                     """;
         }
     }
+
+    private String redraw() {
+        return "";
+    }
+    private String makeMove(String... params) throws ResponseException {
+        return "";
+    }
+    private String leave() throws ResponseException {
+        return "";
+    }
+    private String resign() throws ResponseException {
+        return "";
+    }
+    private String highlightMoves(String ... params) throws ResponseException {
+        return "";
+    }
+
+
+
+
+
+
+
+
+
     private String makeBoard(ChessBoard board, String playerColor) {
         StringBuilder stringBoard = new StringBuilder();
         boolean isWhite = "WHITE".equals(playerColor);
