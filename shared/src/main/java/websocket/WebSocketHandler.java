@@ -1,6 +1,8 @@
 package websocket;
 
+import chess.ChessGame;
 import chess.ChessMove;
+import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
@@ -17,6 +19,7 @@ import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Objects;
 
 
 @WebSocket
@@ -83,7 +86,20 @@ public class WebSocketHandler {
             connection = connections.gameConnections.get(gameID).get(username);
             if (connection == null) throw new DataAccessException("User is not in the game");
 
+            // make sure its your turn
+            ChessGame currentGame = gameData.game();
+            ChessGame.TeamColor playerColor = null;
+            if (Objects.equals(gameData.whiteUsername(), username)) playerColor = ChessGame.TeamColor.WHITE;
+            if (Objects.equals(gameData.blackUsername(), username)) playerColor = ChessGame.TeamColor.BLACK;
+            if (currentGame.getTeamTurn() != playerColor) throw new DataAccessException("Its not your turn");
 
+            // check to see if the move is valid
+            if (currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
+            currentGame.makeMove(move);
+
+            // update game
+            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
+            gameDAO.
 
 
     } catch (DataAccessException | SQLException e) {
@@ -94,6 +110,8 @@ public class WebSocketHandler {
             } else {
                 session.getRemote().sendString(new Gson().toJson(error));
             }
+        } catch (InvalidMoveException e) {
+            throw new RuntimeException(e);
         }
     }
 

@@ -7,6 +7,7 @@ import dataaccess.DatabaseManager;
 import model.CreateGameResult;
 import model.GameData;
 
+import javax.xml.crypto.Data;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
@@ -121,6 +122,30 @@ public class DBGameDAO {
             }
         }
     }
+
+    public void updateGame(GameData gameData) throws DataAccessException, SQLException {
+        String updateGame = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
+        try (
+            var conn = DatabaseManager.getConnection();
+            var ps = conn.prepareStatement(updateGame)) {
+            ps.setString(1, gameData.whiteUsername());
+            ps.setString(2, gameData.blackUsername());
+            ps.setString(3, gameData.gameName());
+            ps.setString(4, new Gson().toJson(gameData.game()));
+            ps.setInt(5, gameData.gameID());
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new DataAccessException("Game not found");
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("Error updating game");
+        }
+
+    }
+
+
+
+
     public void clearGames() throws DataAccessException {
         String deleteGames = "DELETE FROM games";
         try (
