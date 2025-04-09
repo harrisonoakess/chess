@@ -37,6 +37,7 @@ public class WebSocketHandler {
             case CONNECT -> connect(gameAction.getAuthToken(), gameAction.getGameID(), session);
             case MAKE_MOVE -> makeMove(moveAction.getAuthToken(), moveAction.getGameID(), moveAction.getMove(), session);
             case LEAVE -> leave(gameAction.getAuthToken(), gameAction.getGameID(), session);
+            case RESIGN -> resign(gameAction.getAuthToken(), gameAction.getGameID(), session);
         }
 }
 
@@ -134,6 +135,15 @@ public class WebSocketHandler {
             connection = connections.gameConnections.get(gameID).get(username);
             if (connection == null) throw new DataAccessException("User is not in the game");
 
+            //remove player from game (in database)
+            String whiteUsername = gameData.whiteUsername();
+            String blackUsername = gameData.blackUsername();
+            if (Objects.equals(gameData.whiteUsername(), username)) whiteUsername = null;
+            if (Objects.equals(gameData.blackUsername(), username)) blackUsername = null;
+            GameData updatedGame = new GameData(gameID, whiteUsername, blackUsername, gameData.gameName(), gameData.game());
+            gameDAO.updateGame(updatedGame);
+
+            // remove player from connection
             connections.remove(username, gameID);
 
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
@@ -142,6 +152,22 @@ public class WebSocketHandler {
         } catch (DataAccessException | SQLException | IOException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
             error.errorMessage = "Error: " + e.getMessage();
+        }
+    }
+
+    private void resign(String authToken, int gameID, Session session) {
+        Connection connection = null;
+        try {
+            // check auth and IDg
+            String username = authDAO.returnUsername(authToken);
+            GameData gameData = gameDAO.listGames().get(gameID);
+            checkAuthAndGame(username, gameData);
+
+            // make sure user is in the game
+            connection = connections.gameConnections.get(gameID).get(username);
+            if (connection == null) throw new DataAccessException("User is not in the game");
+        } catch (SQLException | DataAccessException e) {
+            throw new RuntimeException(e);
         }
     }
 
