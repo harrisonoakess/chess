@@ -82,7 +82,6 @@ public class ChessClient implements NotificationHandler{
 
     public String evalGameplay(String cmd, String... params) throws ResponseException {
         return switch (cmd) {
-//            case "help" -> helpGameplay();
             case "redraw" -> redraw();
             case "leave" -> leave();
             case "move" -> makeMove(params);

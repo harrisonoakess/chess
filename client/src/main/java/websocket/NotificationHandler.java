@@ -1,10 +1,8 @@
 package websocket;
 
-import websocket.messages.ServerMessage;
+import websocket.messages.ServerMessageExtended;
 
 
 public interface NotificationHandler {
     void notify(ServerMessageExtended serverMessage);
-
-    void notify(websocket.messages.ServerMessageExtended serverMessageExtended);
 }
