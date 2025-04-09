@@ -27,7 +27,7 @@ public class WebSocketHandler {
     private final DBAuthDAO authDAO = new DBAuthDAO();
     private final DBGameDAO gameDAO = new DBGameDAO();
     private final Gson gson = new Gson();
-
+    private Connection connection = null;
 
     @OnWebSocketMessage
     public void onMessage(Session session, String message) throws IOException {
@@ -40,13 +40,12 @@ public class WebSocketHandler {
 }
 
     private void connect(String authToken, int gameID, Session session) throws IOException {
-        Connection connection = null;
+//        Connection connection = null;
         try {
             // check auth and ID
             String username = authDAO.returnUsername(authToken);
-            if (username == null) throw new DataAccessException("Auth token does note exist");
             GameData gameData = gameDAO.listGames().get(gameID);
-            if (gameData == null) throw new DataAccessException("Game ID does not exist");
+            checkAuthAndGame(authToken, gameID, username, gameData);
 
             // establish connection and add to list
             connection = new Connection(username, session);
@@ -73,14 +72,12 @@ public class WebSocketHandler {
     }
 
     private void makeMove(String authToken, int gameID, ChessMove move, Session session) throws IOException {
-        Connection connection = null;
+//        Connection connection = null;
         try {
             // check auth and IDg
             String username = authDAO.returnUsername(authToken);
-            if (username == null) throw new DataAccessException("Auth token does note exist");
             GameData gameData = gameDAO.listGames().get(gameID);
-            if (gameData == null) throw new DataAccessException("Game ID does not exist");
-
+            checkAuthAndGame(authToken, gameID, username, gameData);
             // make sure user is in the game
             connection = connections.gameConnections.get(gameID).get(username);
             if (connection == null) throw new DataAccessException("User is not in the game");
@@ -123,6 +120,38 @@ public class WebSocketHandler {
             throw new RuntimeException(e);
         }
     }
+
+    private void leave(String authToken, int gameID, Session sesssion) throws DataAccessException, SQLException {
+        try {
+            // check auth and IDg
+            String username = authDAO.returnUsername(authToken);
+            GameData gameData = gameDAO.listGames().get(gameID);
+            checkAuthAndGame(authToken, gameID, username, gameData);
+
+            // make sure user is in the game
+            connection = connections.gameConnections.get(gameID).get(username);
+            if (connection == null) throw new DataAccessException("User is not in the game");
+
+            connections.remove(username, gameID);
+
+            ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.message = username + " has left the game";
+            connections.broadcast(gameID, username, gson.toJson(notification));
+        } catch (DataAccessException | SQLException | IOException e) {
+            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
+            error.errorMessage = "Error: " + e.getMessage();
+        }
+    }
+
+    private void checkAuthAndGame(String authToken, int gameID) throws DataAccessException, SQLException {
+        // check auth and ID
+        String username = authDAO.returnUsername(authToken);
+        GameData gameData = gameDAO.listGames().get(gameID);
+        if (username == null) throw new DataAccessException("Auth token does note exist");
+        if (gameData == null) throw new DataAccessException("Game ID does not exist");
+
+    }
+
 
     @OnWebSocketConnect
     public void onOpen(Session session) {
