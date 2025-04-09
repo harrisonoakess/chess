@@ -13,6 +13,7 @@ import websocket.commands.UserMoveCommand;
 import websocket.messages.ServerMessage;
 import websocket.messages.ServerMessageExtended;
 
+import javax.xml.crypto.Data;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
@@ -67,8 +68,33 @@ public class WebSocketHandler {
         }
     }
 
-    private void makeMove(String authToken, int gameID, ChessMove move, Session session) {
+    private void makeMove(String authToken, int gameID, ChessMove move, Session session) throws IOException {
+        Connection connection = null;
+        try {
+            // setup and error checking
+            DBAuthDAO authDAO = new DBAuthDAO();
+            DBGameDAO gameDAO = new DBGameDAO();
+            String username = authDAO.returnUsername(authToken);
+            if (username == null) throw new DataAccessException("Auth token does note exist");
+            GameData gameData = gameDAO.listGames().get(gameID);
+            if (gameData == null) throw new DataAccessException("Game ID does not exist");
 
+            // make sure user is in the game
+            connection = connections.gameConnections.get(gameID).get(username);
+            if (connection == null) throw new DataAccessException("User is not in the game");
+
+
+
+
+    } catch (DataAccessException | SQLException e) {
+            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
+            error.errorMessage = "Error: " + e.getMessage();
+            if (connection != null) {
+                connection.send(new Gson().toJson(error));
+            } else {
+                session.getRemote().sendString(new Gson().toJson(error));
+            }
+        }
     }
 
 
