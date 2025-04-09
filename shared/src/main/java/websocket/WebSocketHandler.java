@@ -91,6 +91,9 @@ public class WebSocketHandler {
             if (Objects.equals(gameData.blackUsername(), username)) playerColor = ChessGame.TeamColor.BLACK;
             if (currentGame.getTeamTurn() != playerColor) throw new DataAccessException("Its not your turn");
 
+            // check if game is still going
+            if (currentGame.isGameOver()) throw new DataAccessException("Game is already over");
+
             // check to see if the move is valid then makes the move if it is
 //            Collection<ChessMove> validMoves = currentGame.validMoves(move.getStartPosition());
             if (!currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
@@ -155,7 +158,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void resign(String authToken, int gameID, Session session) {
+    private void resign(String authToken, int gameID, Session session) throws IOException {
         Connection connection = null;
         try {
             // check auth and IDg
@@ -167,13 +170,30 @@ public class WebSocketHandler {
             connection = connections.gameConnections.get(gameID).get(username);
             if (connection == null) throw new DataAccessException("User is not in the game");
 
+            // check for observer resignation
+            String whiteUsername = gameData.whiteUsername();
+            String blackUsername = gameData.blackUsername();
+            if (!username.equals(whiteUsername) && !username.equals(blackUsername)) throw new DataAccessException("You must be playing to resign");
+
+            // check if game is still going
             ChessGame currentGame = gameData.game();
+            if (currentGame.isGameOver()) throw new DataAccessException("Game is already over");
 
+            //end the game
+            currentGame.gameFinished(true);
+            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), currentGame);
+            gameDAO.updateGame(updatedGame);
 
-
-
-        } catch (SQLException | DataAccessException e) {
-            throw new RuntimeException(e);
+            // send message to everyone
+            ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
+            notification.message = username + " has resigned";
+            connections.broadcast(gameID, null, gson.toJson(notification));
+        } catch (SQLException | DataAccessException | IOException e) {
+            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
+            error.errorMessage = "Error: " + e.getMessage();
+            if (connection != null) {
+                connection.send(gson.toJson(error));
+            }
         }
     }
 
