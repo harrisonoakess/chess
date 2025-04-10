@@ -327,20 +327,33 @@ public class ChessClient implements NotificationHandler{
         }
     }
     private String highlightMoves(String ... params) throws ResponseException {
-        return "";
+        try {
+            if (params.length != 1) throw new ResponseException(400, "Expected: highlight <position>");
+            if (currentGame == null) throw new ResponseException(400, "No active game");
+            ChessPosition chosenPosition = stringToMove(params[0]);
+            var validMoves = currentGame.validMoves(chosenPosition);
+            String perspective = playerColor != null && playerColor.equals("BLACK") ? "BLACK" : "WHITE";
+            return makeBoard(currentGame.getBoard(), perspective, chosenPosition, validMoves);
+        } catch (IllegalArgumentException e) {
+            return "Error: Invalid position - " + e.getMessage();
+        }
     }
 
 
 
-    private String makeBoard(ChessBoard board, String playerColor) {
+    private String makeBoard(ChessBoard board, String playerColor, ChessPosition chosenPosition, Iterable<ChessMove> validMoves) {
         StringBuilder stringBoard = new StringBuilder();
         boolean isWhite = "WHITE".equals(playerColor);
 
         appendColumnLabels(stringBoard, isWhite);
-        appendBoardRows(stringBoard, board, isWhite);
+        appendBoardRows(stringBoard, board, isWhite, chosenPosition, validMoves);
         appendColumnLabels(stringBoard, isWhite);
 
         return stringBoard.toString();
+    }
+
+    private String makeBoard(ChessBoard board, String playerColor) {
+        return makeBoard(board, playerColor, null, null);
     }
 
     private void appendColumnLabels(StringBuilder stringBoard, boolean isWhite) {
@@ -349,38 +362,48 @@ public class ChessClient implements NotificationHandler{
         stringBoard.append(columns);
     }
 
-    private void appendBoardRows(StringBuilder stringBoard, ChessBoard board, boolean isWhite) {
+    private void appendBoardRows(StringBuilder stringBoard, ChessBoard board, boolean isWhite, ChessPosition startPosition, Iterable<ChessMove> validMoves) {
         int startRow = isWhite ? 8 : 1;
         int endRow = isWhite ? 1 : 8;
         int rowIncrement = isWhite ? -1 : 1;
 
         for (int row = startRow; isWhite ? row >= endRow : row <= endRow; row += rowIncrement) {
             stringBoard.append(row).append(" ");
-            appendRowPieces(stringBoard, board, row, isWhite);
+            appendRowPieces(stringBoard, board, row, isWhite, startPosition, validMoves);
             stringBoard.append(" ").append(row).append("\n");
         }
     }
 
-    private void appendRowPieces(StringBuilder stringBoard, ChessBoard board, int row, boolean isWhite) {
+    private void appendRowPieces(StringBuilder stringBoard, ChessBoard board, int row, boolean isWhite, ChessPosition startPosition, Iterable<ChessMove> validMoves) {
         int startCol = isWhite ? 1 : 8;
         int endCol = isWhite ? 8 : 1;
         int colIncrement = isWhite ? 1 : -1;
 
         for (int col = startCol; isWhite ? col <= endCol : col >= endCol; col += colIncrement) {
-            String color = getColor(row, col);
-            ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+            ChessPosition currentPos = new ChessPosition(row, col);
+            String color = getColor(row, col, startPosition, validMoves, currentPos);
+            ChessPiece piece = board.getPiece(currentPos);
             stringBoard.append(color).append(getPieceSymbol(piece)).append(RESET_BG_COLOR);
         }
     }
 
-    private String getColor(int row, int col) {
-        String color;
-        if ((row + col) % 2 == 0) {
-            color = SET_BG_COLOR_DARK_GREY;
-        } else {
-            color = SET_BG_COLOR_LIGHT_GREY;
+    private String getColor(int row, int col, ChessPosition startPosition, Iterable<ChessMove> validMoves, ChessPosition currentPos) {
+        if (startPosition != null && startPosition.equals(currentPos)) {
+            return SET_BG_COLOR_YELLOW;
         }
-        return color;
+        if (validMoves != null) {
+            for (ChessMove move : validMoves) {
+                if (move.getEndPosition().equals(currentPos)) {
+                    return SET_BG_COLOR_GREEN;
+                }
+            }
+        }
+        // Default board colors if no highlight
+        if ((row + col) % 2 == 0) {
+            return SET_BG_COLOR_DARK_GREY;
+        } else {
+            return SET_BG_COLOR_LIGHT_GREY;
+        }
     }
 
 
