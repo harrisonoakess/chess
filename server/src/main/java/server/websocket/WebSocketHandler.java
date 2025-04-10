@@ -85,7 +85,9 @@ public class WebSocketHandler {
             checkAuthAndGame(username, gameData);
             // make sure user is in the game
             connection = connections.gameConnections.get(gameID).get(username);
-            if (connection == null) throw new DataAccessException("User is not in the game");
+            if (connection == null) {
+                throw new DataAccessException("User is not in the game");
+            }
 
             // make sure its your turn
             ChessGame currentGame = gameData.game();
