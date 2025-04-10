@@ -44,9 +44,9 @@ public class DBGameDAO {
         String checkWhiteTeam = "Select COUNT(*) FROM games WHERE gameID = ? AND whiteUsername IS NOT NULL";
         String joinWhite = "UPDATE games SET whiteUsername =? WHERE gameID = ?";
         try (
-            var conn = DatabaseManager.getConnection();
-            var checkPS = conn.prepareStatement(checkWhiteTeam);
-            var ps = conn.prepareStatement(joinWhite)) {
+                var conn = DatabaseManager.getConnection();
+                var checkPS = conn.prepareStatement(checkWhiteTeam);
+                var ps = conn.prepareStatement(joinWhite)) {
             checkPS.setInt(1, gameID);
             try (var rowsAffected = checkPS.executeQuery()) {
                 if (rowsAffected.next() && rowsAffected.getInt(1) > 0) {
@@ -102,11 +102,11 @@ public class DBGameDAO {
         Map<Integer, GameData> games = new HashMap<>();
         String getGames = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
         try (
-            var conn = DatabaseManager.getConnection();
-            var ps = conn.prepareStatement(getGames)){
+                var conn = DatabaseManager.getConnection();
+                var ps = conn.prepareStatement(getGames)) {
 
             try (var rs = ps.executeQuery()) {
-                while (rs.next()){
+                while (rs.next()) {
                     int gameID = rs.getInt("gameID");
                     String whiteUsername = rs.getString("whiteUsername");
                     String blackUsername = rs.getString("blackUsername");
@@ -117,7 +117,7 @@ public class DBGameDAO {
                     games.put(gameID, game);
                 }
                 return games;
-            } catch (SQLException e){
+            } catch (SQLException e) {
                 throw new DataAccessException(e.getMessage());
             }
         }
@@ -126,8 +126,8 @@ public class DBGameDAO {
     public void updateGame(GameData gameData) throws DataAccessException, SQLException {
         String updateGame = "UPDATE games SET whiteUsername = ?, blackUsername = ?, gameName = ?, game = ? WHERE gameID = ?";
         try (
-            var conn = DatabaseManager.getConnection();
-            var ps = conn.prepareStatement(updateGame)) {
+                var conn = DatabaseManager.getConnection();
+                var ps = conn.prepareStatement(updateGame)) {
             ps.setString(1, gameData.whiteUsername());
             ps.setString(2, gameData.blackUsername());
             ps.setString(3, gameData.gameName());
@@ -143,17 +143,14 @@ public class DBGameDAO {
 
     }
 
-
-
-
     public void clearGames() throws DataAccessException {
-        String deleteGames = "DELETE FROM games";
+        String resetGames = "TRUNCATE TABLE games"; // Resets auto-increment to 1
         try (
                 var conn = DatabaseManager.getConnection();
-                var ps = conn.prepareStatement(deleteGames)) {
+                var ps = conn.prepareStatement(resetGames)) {
             ps.executeUpdate();
         } catch (SQLException e) {
-            throw new DataAccessException(e.getMessage());
+            throw new DataAccessException("Error clearing games: " + e.getMessage());
         }
     }
 }
