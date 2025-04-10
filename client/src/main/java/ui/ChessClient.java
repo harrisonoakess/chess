@@ -4,8 +4,8 @@ import chess.*;
 import client.ServerFacade;
 import exception.ResponseException;
 import model.*;
-import websocket.NotificationHandler;
-import websocket.WebSocketFacade;
+import clientwebsocket.NotificationHandler;
+import clientwebsocket.WebSocketFacade;
 import websocket.messages.ServerMessageExtended;
 
 
