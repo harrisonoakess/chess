@@ -288,7 +288,7 @@ public class ChessClient implements NotificationHandler{
         char colChar = position.charAt(0);
         char rowChar = position.charAt(1);
         int col = colChar - 'a' + 1;
-        int row = rowChar;
+        int row = rowChar- '0';
         if (col < 1 || col > 8 || row < 1 || row > 8) throw new IllegalArgumentException("Position is not on the baord");
         return new ChessPosition(row, col);
     }

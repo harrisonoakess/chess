@@ -60,7 +60,15 @@ public class WebSocketHandler {
 
             // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
-            notification.message = username + " has joined the game";
+            String role;
+            if (Objects.equals(gameData.whiteUsername(), username)) {
+                role = "WHITE";
+            } else if (Objects.equals(gameData.blackUsername(), username)) {
+                role = "BLACK";
+            } else {
+                role = "an observer";
+            }
+            notification.message = username + " has joined the game as " + role;
             connections.broadcast(gameID, username, gson.toJson(notification));
         } catch (DataAccessException | SQLException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
@@ -90,18 +98,38 @@ public class WebSocketHandler {
             if (Objects.equals(gameData.whiteUsername(), username)) playerColor = ChessGame.TeamColor.WHITE;
             if (Objects.equals(gameData.blackUsername(), username)) playerColor = ChessGame.TeamColor.BLACK;
             if (currentGame.getTeamTurn() != playerColor) throw new DataAccessException("Its not your turn");
-
+            if (playerColor == null) throw new DataAccessException("Observers cannot make moves");
             // check if game is still going
             if (currentGame.isGameOver()) throw new DataAccessException("Game is already over");
 
             // check to see if the move is valid then makes the move if it is
-//            Collection<ChessMove> validMoves = currentGame.validMoves(move.getStartPosition());
             if (!currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
             currentGame.makeMove(move);
 
+            // check if in check or checkmate
+            ChessGame.TeamColor opponentColor;
+            String opponentName;
+            if (playerColor == ChessGame.TeamColor.WHITE) {
+                opponentColor = ChessGame.TeamColor.BLACK;
+                opponentName = gameData.blackUsername();
+            } else {
+                opponentColor = ChessGame.TeamColor.WHITE;
+                opponentName = gameData.whiteUsername();
+            }
+            if (currentGame.isInCheckmate(opponentColor)) {
+                currentGame.gameFinished(true);
+                ServerMessageExtended checkmateNotification = new ServerMessageExtended(ServerMessageExtended.ServerMessageType.NOTIFICATION);
+                checkmateNotification.message = opponentName + " is in checkmate";
+                connections.broadcast(gameID, null, gson.toJson(checkmateNotification));
+            } else if (currentGame.isInCheck(opponentColor)){
+                ServerMessageExtended checkNotification = new ServerMessageExtended(ServerMessageExtended.ServerMessageType.NOTIFICATION);
+                checkNotification.message = opponentName + " is in check";
+                connections.broadcast(gameID, null, gson.toJson(checkNotification));
+            }
+
             // updates game in SQL
-            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), gameData.game());
-            gameDAO.updateGame(gameData);
+            GameData updatedGame = new GameData(gameID, gameData.whiteUsername(), gameData.blackUsername(), gameData.gameName(), currentGame);
+            gameDAO.updateGame(updatedGame);
 
             // send message to server
             ServerMessageExtended response = new ServerMessageExtended(ServerMessage.ServerMessageType.LOAD_GAME);
@@ -110,7 +138,7 @@ public class WebSocketHandler {
 
 // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
-            notification.message = username + " has moved to " + move.getEndPosition();
+            notification.message = username + " has moved from " + move.getStartPosition() + " to " + move.getEndPosition();
             connections.broadcast(gameID, username, gson.toJson(notification));
 
     } catch (DataAccessException | SQLException e) {
@@ -126,7 +154,7 @@ public class WebSocketHandler {
         }
     }
 
-    private void leave(String authToken, int gameID, Session sesssion) throws DataAccessException, SQLException {
+    private void leave(String authToken, int gameID, Session sesssion) throws DataAccessException, SQLException, IOException {
         Connection connection = null;
         try {
             // check auth and IDg
@@ -155,6 +183,11 @@ public class WebSocketHandler {
         } catch (DataAccessException | SQLException | IOException e) {
             ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
             error.errorMessage = "Error: " + e.getMessage();
+            if (connection != null) {
+                connection.send(gson.toJson(error));
+            } else {
+                sesssion.getRemote().sendString(gson.toJson(error));
+            }
         }
     }
 
@@ -193,6 +226,8 @@ public class WebSocketHandler {
             error.errorMessage = "Error: " + e.getMessage();
             if (connection != null) {
                 connection.send(gson.toJson(error));
+            } else {
+                session.getRemote().sendString(gson.toJson(error));
             }
         }
     }
