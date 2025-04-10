@@ -259,8 +259,9 @@ public class ChessClient implements NotificationHandler{
     }
 
 
-    private String redraw() {
-        return "";
+    private String redraw() throws ResponseException {
+        String perspective = playerColor != null && playerColor.equals("BLACK") ? "BLACK" : "WHITE";
+        return makeBoard(currentGame.getBoard(), perspective);
     }
     private String makeMove(String... params) throws ResponseException {
         return "";
