@@ -338,9 +338,6 @@ public class ChessClient implements NotificationHandler{
             return "Error: Invalid position - " + e.getMessage();
         }
     }
-
-
-
     private String makeBoard(ChessBoard board, String playerColor, ChessPosition chosenPosition, Iterable<ChessMove> validMoves) {
         StringBuilder stringBoard = new StringBuilder();
         boolean isWhite = "WHITE".equals(playerColor);
