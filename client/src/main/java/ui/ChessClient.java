@@ -1,9 +1,6 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
-import chess.ChessPiece;
-import chess.ChessPosition;
+import chess.*;
 import client.ServerFacade;
 import exception.ResponseException;
 import model.*;
@@ -250,7 +247,7 @@ public class ChessClient implements NotificationHandler{
             case GAMEPLAY -> """
                     redraw
                     leave
-                    move <start> <end>
+                    move <start> <end> <promotion piece(if applicable)>
                     resign
                     highlight
                     help
@@ -266,12 +263,49 @@ public class ChessClient implements NotificationHandler{
         } catch (RuntimeException e) {
             throw new RuntimeException(e.getMessage());
         }
+    }
 
-    }
     private String makeMove(String... params) throws ResponseException {
-//        webSocketFacade.makeMove();
-        return "";
+        try {
+            ChessPiece.PieceType promotionPiece = null;
+            if (params[0].length() != 2 && params[1].length() != 2) {
+                throw new IllegalArgumentException("Not a valid move");
+            }
+            ChessPosition startingPosition = stringToMove(params[0]);
+            ChessPosition endPosition = stringToMove(params[1]);
+            if (params.length == 3) {
+                promotionPiece = stringToPromotionalPiece(params[2]);
+            }
+            ChessMove newMove = new ChessMove(startingPosition, endPosition, promotionPiece);
+            webSocketFacade.makeMove(currentGameID, authToken, newMove);
+            return "move successful";
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
+
+    private ChessPosition stringToMove(String position) {
+        char colChar = position.charAt(0);
+        char rowChar = position.charAt(1);
+        int col = colChar - 'a' + 1;
+        int row = rowChar;
+        if (col < 1 || col > 8 || row < 1 || row > 8) throw new IllegalArgumentException("Position is not on the baord");
+        return new ChessPosition(row, col);
+    }
+
+    private ChessPiece.PieceType stringToPromotionalPiece(String piece) {
+    piece = piece.toLowerCase();
+    return switch (piece) {
+        case "queen" -> ChessPiece.PieceType.QUEEN;
+        case "knight" -> ChessPiece.PieceType.KNIGHT;
+        case "bishop" -> ChessPiece.PieceType.BISHOP;
+        case "rook" -> ChessPiece.PieceType.ROOK;
+        default -> throw new IllegalArgumentException("Invalid Piece");
+        };
+    }
+
+
+
     private String leave() throws ResponseException {
         try {
             webSocketFacade.leave(currentGameID, authToken);
@@ -295,12 +329,6 @@ public class ChessClient implements NotificationHandler{
     private String highlightMoves(String ... params) throws ResponseException {
         return "";
     }
-
-
-
-
-
-
 
 
 
