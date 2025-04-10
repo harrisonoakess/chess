@@ -72,13 +72,7 @@ public class WebSocketHandler {
             notification.message = username + " has joined the game as " + role;
             connections.broadcast(gameID, username, gson.toJson(notification));
         } catch (DataAccessException | SQLException e) {
-            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
-            error.errorMessage = "Error: " + e.getMessage();
-            if (connection != null) {
-                connection.send(gson.toJson(error));
-            } else {
-                session.getRemote().sendString(gson.toJson(error));
-            }
+            catchError(session, connection, e);
         }
     }
 
@@ -96,15 +90,27 @@ public class WebSocketHandler {
             // make sure its your turn
             ChessGame currentGame = gameData.game();
             ChessGame.TeamColor playerColor = null;
-            if (Objects.equals(gameData.whiteUsername(), username)) playerColor = ChessGame.TeamColor.WHITE;
-            if (Objects.equals(gameData.blackUsername(), username)) playerColor = ChessGame.TeamColor.BLACK;
-            if (currentGame.getTeamTurn() != playerColor) throw new DataAccessException("Its not your turn");
-            if (playerColor == null) throw new DataAccessException("Observers cannot make moves");
+            if (Objects.equals(gameData.whiteUsername(), username)) {
+                playerColor = ChessGame.TeamColor.WHITE;
+            }
+            if (Objects.equals(gameData.blackUsername(), username)) {
+                playerColor = ChessGame.TeamColor.BLACK;
+            }
+            if (currentGame.getTeamTurn() != playerColor) {
+                throw new DataAccessException("Its not your turn");
+            }
+            if (playerColor == null) {
+                throw new DataAccessException("Observers cannot make moves");
+            }
             // check if game is still going
-            if (currentGame.isGameOver()) throw new DataAccessException("Game is already over");
+            if (currentGame.isGameOver()) {
+                throw new DataAccessException("Game is already over");
+            }
 
             // check to see if the move is valid then makes the move if it is
-            if (!currentGame.validMoves(move.getStartPosition()).contains(move)) throw new DataAccessException("You cannot move there");
+            if (!currentGame.validMoves(move.getStartPosition()).contains(move)) {
+                throw new DataAccessException("You cannot move there");
+            }
             currentGame.makeMove(move);
 
             // check if in check or checkmate
@@ -139,19 +145,12 @@ public class WebSocketHandler {
 
 // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
-            notification.message = username + " has moved from " + positionToString(move.getStartPosition()) + " to " + positionToString(move.getEndPosition());
+            notification.message = username + " has moved from " + positionToString(move.getStartPosition())
+                    + " to " + positionToString(move.getEndPosition());
             connections.broadcast(gameID, username, gson.toJson(notification));
 
-    } catch (DataAccessException | SQLException e) {
-            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
-            error.errorMessage = "Error: " + e.getMessage();
-            if (connection != null) {
-                connection.send(gson.toJson(error));
-            } else {
-                session.getRemote().sendString(gson.toJson(error));
-            }
-        } catch (InvalidMoveException e) {
-            throw new RuntimeException(e);
+    } catch (DataAccessException | SQLException | InvalidMoveException e) {
+            catchError(session, connection, e);
         }
     }
 
@@ -165,13 +164,19 @@ public class WebSocketHandler {
 
             // make sure user is in the game
             connection = connections.gameConnections.get(gameID).get(username);
-            if (connection == null) throw new DataAccessException("User is not in the game");
+            if (connection == null) {
+                throw new DataAccessException("User is not in the game");
+            }
 
             //remove player from game (in database)
             String whiteUsername = gameData.whiteUsername();
             String blackUsername = gameData.blackUsername();
-            if (Objects.equals(gameData.whiteUsername(), username)) whiteUsername = null;
-            if (Objects.equals(gameData.blackUsername(), username)) blackUsername = null;
+            if (Objects.equals(gameData.whiteUsername(), username)) {
+                whiteUsername = null;
+            }
+            if (Objects.equals(gameData.blackUsername(), username)) {
+                blackUsername = null;
+            }
             GameData updatedGame = new GameData(gameID, whiteUsername, blackUsername, gameData.gameName(), gameData.game());
             gameDAO.updateGame(updatedGame);
 
@@ -202,16 +207,22 @@ public class WebSocketHandler {
 
             // make sure user is in the game
             connection = connections.gameConnections.get(gameID).get(username);
-            if (connection == null) throw new DataAccessException("User is not in the game");
+            if (connection == null) {
+                throw new DataAccessException("User is not in the game");
+            }
 
             // check for observer resignation
             String whiteUsername = gameData.whiteUsername();
             String blackUsername = gameData.blackUsername();
-            if (!username.equals(whiteUsername) && !username.equals(blackUsername)) throw new DataAccessException("You must be playing to resign");
+            if (!username.equals(whiteUsername) && !username.equals(blackUsername)) {
+                throw new DataAccessException("You must be playing to resign");
+            }
 
             // check if game is still going
             ChessGame currentGame = gameData.game();
-            if (currentGame.isGameOver()) throw new DataAccessException("Game is already over");
+            if (currentGame.isGameOver()) {
+                throw new DataAccessException("Game is already over");
+            }
 
             //end the game
             currentGame.gameFinished(true);
@@ -222,21 +233,19 @@ public class WebSocketHandler {
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
             notification.message = username + " has resigned";
             connections.broadcast(gameID, null, gson.toJson(notification));
-        } catch (SQLException | DataAccessException | IOException e) {
-            ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
-            error.errorMessage = "Error: " + e.getMessage();
-            if (connection != null) {
-                connection.send(gson.toJson(error));
-            } else {
-                session.getRemote().sendString(gson.toJson(error));
-            }
+        } catch (DataAccessException | SQLException e) {
+            catchError(session, connection, e);
         }
     }
 
     private void checkAuthAndGame(String username, GameData gameData) throws DataAccessException, SQLException {
         // check auth and ID
-        if (username == null) throw new DataAccessException("Auth token does note exist");
-        if (gameData == null) throw new DataAccessException("Game ID does not exist");
+        if (username == null) {
+            throw new DataAccessException("Auth token does note exist");
+        }
+        if (gameData == null) {
+            throw new DataAccessException("Game ID does not exist");
+        }
     }
 
     @OnWebSocketConnect
@@ -268,4 +277,15 @@ public class WebSocketHandler {
         int row = position.getRow(); // Row is already 1-based
         return "" + column + row; // e.g., "e2"
     }
+
+    public void catchError(Session session, Connection connection, Exception e) throws IOException {
+        ServerMessageExtended error = new ServerMessageExtended(ServerMessage.ServerMessageType.ERROR);
+        error.errorMessage = "Error: " + e.getMessage();
+        if (connection != null) {
+            connection.send(gson.toJson(error));
+        } else {
+            session.getRemote().sendString(gson.toJson(error));
+        }
+    }
 }
+

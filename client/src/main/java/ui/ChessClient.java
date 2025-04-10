@@ -182,7 +182,8 @@ public class ChessClient implements NotificationHandler{
             state = state.GAMEPLAY;
             webSocketFacade.connect(currentGameID, authToken);
             String perspective = color != null && color.equals("BLACK") ? "BLACK" : "WHITE";
-            return "Joined game " + params[0] + (color != null ? " as " + color : " as observer") + "\n" + makeBoard(currentGame.getBoard(), perspective);
+            return "Joined game " + params[0] + (color != null ? " as "
+                    + color : " as observer") + "\n" + makeBoard(currentGame.getBoard(), perspective);
         } catch (ResponseException e) {
             if (e.statusCode() == 400 && e.getMessage().contains("Invalid Game ID")) {
                 return "game not found";
@@ -289,7 +290,9 @@ public class ChessClient implements NotificationHandler{
         char rowChar = position.charAt(1);
         int col = colChar - 'a' + 1;
         int row = rowChar- '0';
-        if (col < 1 || col > 8 || row < 1 || row > 8) throw new IllegalArgumentException("Position is not on the baord");
+        if (col < 1 || col > 8 || row < 1 || row > 8) {
+            throw new IllegalArgumentException("Position is not on the baord");
+        }
         return new ChessPosition(row, col);
     }
 
@@ -328,8 +331,12 @@ public class ChessClient implements NotificationHandler{
     }
     private String highlightMoves(String ... params) throws ResponseException {
         try {
-            if (params.length != 1) throw new ResponseException(400, "Expected: highlight <position>");
-            if (currentGame == null) throw new ResponseException(400, "No active game");
+            if (params.length != 1) {
+                throw new ResponseException(400, "Expected: highlight <position>");
+            }
+            if (currentGame == null) {
+                throw new ResponseException(400, "No active game");
+            }
             ChessPosition chosenPosition = stringToMove(params[0]);
             var validMoves = currentGame.validMoves(chosenPosition);
             String perspective = playerColor != null && playerColor.equals("BLACK") ? "BLACK" : "WHITE";
@@ -359,7 +366,8 @@ public class ChessClient implements NotificationHandler{
         stringBoard.append(columns);
     }
 
-    private void appendBoardRows(StringBuilder stringBoard, ChessBoard board, boolean isWhite, ChessPosition startPosition, Iterable<ChessMove> validMoves) {
+    private void appendBoardRows(StringBuilder stringBoard, ChessBoard board, boolean isWhite,
+                                 ChessPosition startPosition, Iterable<ChessMove> validMoves) {
         int startRow = isWhite ? 8 : 1;
         int endRow = isWhite ? 1 : 8;
         int rowIncrement = isWhite ? -1 : 1;
@@ -371,7 +379,8 @@ public class ChessClient implements NotificationHandler{
         }
     }
 
-    private void appendRowPieces(StringBuilder stringBoard, ChessBoard board, int row, boolean isWhite, ChessPosition startPosition, Iterable<ChessMove> validMoves) {
+    private void appendRowPieces(StringBuilder stringBoard, ChessBoard board, int row, boolean isWhite,
+                                 ChessPosition startPosition, Iterable<ChessMove> validMoves) {
         int startCol = isWhite ? 1 : 8;
         int endCol = isWhite ? 8 : 1;
         int colIncrement = isWhite ? 1 : -1;
