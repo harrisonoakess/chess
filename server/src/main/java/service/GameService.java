@@ -41,15 +41,7 @@ public class GameService {
         if (!gameExists(Integer.parseInt(gameID), authToken)) {
             throw new DataAccessException("Game does not exist");
         }
-//        if (playerColor != "BLACK"){
-//            if (playerColor != "WHITE") {
-//                return;
-//            }
-//        }
-//        System.out.println("DEBUG: GameService playerColor = " + (playerColor == null ? "null" : "'" + playerColor + "'"));
-        if (playerColor == null || playerColor.isEmpty()) {
-            return;
-            }
+
         if (Objects.equals(playerColor, "BLACK") || Objects.equals(playerColor, "WHITE")) {
             int gameIDint = Integer.parseInt(gameID);
             String username = authDAO.returnUsername(authToken);
