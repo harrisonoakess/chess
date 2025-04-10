@@ -2,6 +2,7 @@ package websocket;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPosition;
 import chess.InvalidMoveException;
 import com.google.gson.Gson;
 import dataaccess.DataAccessException;
@@ -138,7 +139,7 @@ public class WebSocketHandler {
 
 // send message back to other players "broadcast"
             ServerMessageExtended notification = new ServerMessageExtended(ServerMessage.ServerMessageType.NOTIFICATION);
-            notification.message = username + " has moved from " + move.getStartPosition() + " to " + move.getEndPosition();
+            notification.message = username + " has moved from " + positionToString(move.getStartPosition()) + " to " + positionToString(move.getEndPosition());
             connections.broadcast(gameID, username, gson.toJson(notification));
 
     } catch (DataAccessException | SQLException e) {
@@ -260,5 +261,11 @@ public class WebSocketHandler {
     @OnWebSocketError
     public void onError(Session session, Throwable cause) {
         System.err.println("WebSocket error");
+    }
+
+    private String positionToString(ChessPosition position) {
+        char column = (char) ('a' + position.getColumn() - 1); // Convert 1-based column to letter (1 = 'a', 2 = 'b', etc.)
+        int row = position.getRow(); // Row is already 1-based
+        return "" + column + row; // e.g., "e2"
     }
 }

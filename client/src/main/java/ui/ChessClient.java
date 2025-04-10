@@ -278,7 +278,7 @@ public class ChessClient implements NotificationHandler{
             }
             ChessMove newMove = new ChessMove(startingPosition, endPosition, promotionPiece);
             webSocketFacade.makeMove(currentGameID, authToken, newMove);
-            return "move successful";
+            return "";
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
         }
