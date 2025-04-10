@@ -3,7 +3,6 @@ package service;
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
 import dataaccess.datastorage.DBGameDAO;
-import dataaccess.datastorage.DBUserDAO;
 import model.CreateGameResult;
 import model.GameData;
 import org.junit.jupiter.api.Assertions;

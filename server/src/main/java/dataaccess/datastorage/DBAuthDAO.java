@@ -6,8 +6,6 @@ import dataaccess.DatabaseManager;
 import model.AuthData;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class DBAuthDAO implements AuthDAO {
 

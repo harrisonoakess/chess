@@ -3,8 +3,8 @@ package util;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import dataaccess.DatabaseManager;
 import dataaccess.DataAccessException;
+import dataaccess.DatabaseManager;
 
 public class TestConnection {
     public static void main(String[] args) {

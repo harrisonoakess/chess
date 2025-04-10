@@ -2,7 +2,6 @@ package service;
 
 import dataaccess.DataAccessException;
 import dataaccess.datastorage.DBAuthDAO;
-import dataaccess.datastorage.DBGameDAO;
 import dataaccess.datastorage.DBUserDAO;
 import model.LoginRequest;
 import model.LoginResult;

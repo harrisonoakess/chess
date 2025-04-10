@@ -3,7 +3,6 @@ package dataaccess.datastorage;
 import dataaccess.DataAccessException;
 import dataaccess.DatabaseManager;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
