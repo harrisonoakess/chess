@@ -260,17 +260,37 @@ public class ChessClient implements NotificationHandler{
 
 
     private String redraw() throws ResponseException {
-        String perspective = playerColor != null && playerColor.equals("BLACK") ? "BLACK" : "WHITE";
-        return makeBoard(currentGame.getBoard(), perspective);
+        try{
+            String perspective = playerColor != null && playerColor.equals("BLACK") ? "BLACK" : "WHITE";
+            return makeBoard(currentGame.getBoard(), perspective);
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+
     }
     private String makeMove(String... params) throws ResponseException {
+//        webSocketFacade.makeMove();
         return "";
     }
     private String leave() throws ResponseException {
-        return "";
+        try {
+            webSocketFacade.leave(currentGameID, authToken);
+            currentGameID = null;
+            playerColor = null;
+            currentGame = null;
+            state = State.SIGNEDIN;
+            return "You have left the game";
+        } catch (RuntimeException e){
+            throw new RuntimeException(e.getMessage());
+        }
     }
     private String resign() throws ResponseException {
-        return "";
+        try{
+            webSocketFacade.resign(currentGameID, authToken);
+            return "You have resigned";
+        } catch (ResponseException e) {
+            throw new RuntimeException(e.getMessage());
+        }
     }
     private String highlightMoves(String ... params) throws ResponseException {
         return "";
